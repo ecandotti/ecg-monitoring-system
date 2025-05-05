@@ -1,0 +1,105 @@
+<?php
+// Démarrage de la session si ce n'est pas déjà fait
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Inclusion des fichiers de configuration
+require_once __DIR__ . '/../config/env.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/security.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+// Récupération du titre de la page
+$pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $pageTitle; ?> - Raspberry Pi ECG</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- CSS personnalisé -->
+    <link rel="stylesheet" href="/public/css/main.css">
+    
+    <?php if (isset($extraCss)): ?>
+        <!-- CSS supplémentaire spécifique à la page -->
+        <link rel="stylesheet" href="<?php echo $extraCss; ?>">
+    <?php endif; ?>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/public/index.php">
+                <i class="fas fa-heartbeat me-2"></i>ECG Monitoring
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/public/index.php">Accueil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/configuration.php">Configuration</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/diagnostic.php">Diagnostic</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav ms-auto">
+                    <?php if (isLoggedIn()): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fa fa-user me-1"></i><?php echo htmlspecialchars($_SESSION['username']); ?>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <?php if (hasRole('admin')): ?>
+                                    <li><a class="dropdown-item" href="/admin/">Administration</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                <?php endif; ?>
+                                <li><a class="dropdown-item" href="/public/logout.php">Déconnexion</a></li>
+                            </ul>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/public/login.php">Connexion</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container mt-4">
+        <?php
+        // Affichage des messages d'alerte stockés en session
+        if (isset($_SESSION['success'])) {
+            echo showSuccess($_SESSION['success']);
+            unset($_SESSION['success']);
+        }
+        
+        if (isset($_SESSION['error'])) {
+            echo showError($_SESSION['error']);
+            unset($_SESSION['error']);
+        }
+        
+        if (isset($_SESSION['info'])) {
+            echo showInfo($_SESSION['info']);
+            unset($_SESSION['info']);
+        }
+        ?>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Database Structure
+
+The ECG monitoring system uses a MySQL database with the following main tables:
+
+## Tables
+
+1. **Patients**: Stores patient information with security measures (hashing/encoding)
+   - Schema found in [database/init.sql](mdc:database/init.sql)
+   - Patient data is protected with hashing and base64 encoding
+
+2. **Configurations**: Stores ECG acquisition configuration data
+   - Links to patients through foreign key
+   - Includes acquisition duration settings
+
+3. **ECG Data**: Stores actual ECG signal values
+   - Time-series data linked to configuration sessions
+   - Indexed for efficient querying
+
+4. **Diagnostics**: Stores medical analysis and results
+   - Contains wave measurements (P, Q, R, S, T)
+   - Includes medical reports and findings
+
+5. **Users**: Authentication system with role-based access
+   - Supports roles: admin, medecin, patient
+   - Passwords securely hashed with bcrypt
+
+## Database Connections
+
+Database interactions use PDO for secure, parameterized queries as implemented in [web/config/database.php](mdc:web/config/database.php)
+

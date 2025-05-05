@@ -1,0 +1,40 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Visualization Components
+
+The ECG monitoring system includes JavaScript-based visualization for displaying and analyzing ECG data:
+
+## ECG Graph Visualization
+
+- **Main Visualization**: [web/public/js/ecg-visualization.js](mdc:web/public/js/ecg-visualization.js)
+  - Uses Chart.js library for rendering ECG signals
+  - Supports real-time data plotting and historical data viewing
+
+- **Interactive Features**:
+  - Zoom and pan capabilities for detailed analysis
+  - Wave identification (P, Q, R, S, T)
+  - Measurement tools for intervals and amplitudes
+
+## User Interface Components
+
+- **Main Styles**: [web/public/css/main.css](mdc:web/public/css/main.css)
+  - Responsive design for various device sizes
+  - Modern UI components for medical data display
+
+- **Diagnostic Interface**: [web/public/css/diagnostic.css](mdc:web/public/css/diagnostic.css)
+  - Specialized styling for diagnostic views
+  - Printable report formats
+
+## Pages
+
+- **Configuration Page**: [web/pages/configuration.php](mdc:web/pages/configuration.php)
+  - Patient and acquisition setup interface
+  - Form for entering patient information securely
+
+- **Diagnostic Page**: [web/pages/diagnostic.php](mdc:web/pages/diagnostic.php)
+  - Professional medical interface for analysis
+  - Tools for entering diagnostic findings and measurements
+

@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# API Endpoints
+
+The ECG monitoring system exposes the following API endpoints:
+
+## Data Retrieval
+
+- [web/api/get_ecg_data.php](mdc:web/api/get_ecg_data.php): Retrieves ECG data for a specific configuration
+  - GET request with `config_id` parameter
+  - Returns time-series ECG data for visualization
+
+- [web/api/get_diagnostic.php](mdc:web/api/get_diagnostic.php): Retrieves diagnostic information
+  - GET request with `id` parameter
+  - Returns diagnostic details and measurements
+
+## Data Storage
+
+- [web/api/save_config.php](mdc:web/api/save_config.php): Saves patient configuration information
+  - POST request with patient details and acquisition parameters
+  - Handles data encryption and security
+
+- [web/api/save_ecg.php](mdc:web/api/save_ecg.php): Stores ECG signal data
+  - POST request with ECG values and timestamps
+  - Links data to a specific acquisition configuration
+

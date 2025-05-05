@@ -1,0 +1,32 @@
+# Enable rewriting
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Direct access to actual files in /pages/ directory should work
+    RewriteCond %{REQUEST_URI} ^/pages/
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+    
+    # Direct access to actual files in /api/ directory should work
+    RewriteCond %{REQUEST_URI} ^/api/
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+    
+    # Redirect everything else to the public directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ /public/$1 [L]
+    
+    # Handle URLs without index.php explicitly mentioned
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ /public/index.php [L]
+</IfModule>
+
+# Set security options
+Options FollowSymLinks
+
+# Prevent directory listing
+Options -Indexes 

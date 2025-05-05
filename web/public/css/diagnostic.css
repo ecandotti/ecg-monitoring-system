@@ -1,0 +1,161 @@
+/* Styles spécifiques pour la page de diagnostic */
+
+/* Conteneur principal du graphique ECG */
+.ecg-visualization {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+/* Titre du graphique */
+.ecg-visualization h3 {
+    margin-bottom: 15px;
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+/* Style pour les ondes ECG */
+.wave-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.wave-indicator .wave-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+.wave-indicator .wave-value {
+    font-family: monospace;
+    color: #0d6efd;
+}
+
+/* Marqueurs pour les ondes spécifiques dans le graphique */
+.wave-marker {
+    position: absolute;
+    border-left: 2px dashed;
+    height: 100%;
+    top: 0;
+    z-index: 5;
+}
+
+.wave-marker.p-wave {
+    border-color: #28a745;
+}
+
+.wave-marker.q-wave {
+    border-color: #dc3545;
+}
+
+.wave-marker.r-wave {
+    border-color: #ffc107;
+}
+
+.wave-marker.s-wave {
+    border-color: #17a2b8;
+}
+
+.wave-marker.t-wave {
+    border-color: #6f42c1;
+}
+
+/* Conteneur des informations sur les ondes */
+.waves-info-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.wave-info-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid;
+}
+
+.wave-info-card.p-wave {
+    border-left-color: #28a745;
+}
+
+.wave-info-card.q-wave {
+    border-left-color: #dc3545;
+}
+
+.wave-info-card.r-wave {
+    border-left-color: #ffc107;
+}
+
+.wave-info-card.s-wave {
+    border-left-color: #17a2b8;
+}
+
+.wave-info-card.t-wave {
+    border-left-color: #6f42c1;
+}
+
+.wave-info-card h5 {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.wave-info-card .value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* Section du compte rendu médical */
+.medical-report {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.medical-report h4 {
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.medical-report .doctor-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+/* Bouton d'impression */
+.print-button {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+/* Classes pour l'impression */
+@media print {
+    .ecg-visualization {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .medical-report {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .wave-info-card {
+        box-shadow: none;
+        border: 1px solid #eee;
+    }
+} 
