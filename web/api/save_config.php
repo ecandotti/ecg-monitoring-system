@@ -81,9 +81,9 @@ if ($tempsAcquisition <= 0) {
 
 try {
     // Hashage et encodage des données sensibles
-    $nomHash = hashData($nom);
+    $nomHash = hashSensitiveData($nom);
     $nomEncoded = encodeBase64($nom);
-    $numeroSecuHash = hashData($numeroSecu);
+    $numeroSecuHash = hashSensitiveData($numeroSecu);
     $numeroSecuEncoded = encodeBase64($numeroSecu);
     $adresseEncoded = encodeBase64($adresse);
     

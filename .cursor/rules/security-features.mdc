@@ -9,9 +9,13 @@ The ECG monitoring system implements several security measures to protect sensit
 
 ## Data Protection
 
-- **Hashing**: Sensitive data is hashed using SHA-256 with a security key
+- **Sensitive Data Hashing**: Patient identifiers are securely hashed using SHA-256 with a security key
   - Implementation in [web/config/security.php](mdc:web/config/security.php)
-  - The hash key "test2025" is used for all hashing operations
+  - Uses `hashSensitiveData()` function for consistent data lookup
+
+- **Password Hashing**: User passwords and remember tokens use bcrypt
+  - Implementation in [web/config/security.php](mdc:web/config/security.php)
+  - Uses PHP's native `password_hash` and `password_verify` functions
 
 - **Encoding**: Personal information is encoded in base64
   - Functions for encoding/decoding in [web/config/security.php](mdc:web/config/security.php)
@@ -22,6 +26,11 @@ The ECG monitoring system implements several security measures to protect sensit
 - **Password Hashing**: User passwords are securely hashed with bcrypt
   - Password verification implemented in security functions
   - Protects against database breaches
+
+- **Remember Me**: Secure "Remember Me" functionality with token rotation
+  - Tokens are securely stored with bcrypt hashing
+  - Tokens are automatically rotated on successful login for enhanced security
+  - Implementation in [web/config/security.php](mdc:web/config/security.php)
 
 - **CSRF Protection**: Forms are protected against Cross-Site Request Forgery
   - Token generation and verification in [web/config/security.php](mdc:web/config/security.php)

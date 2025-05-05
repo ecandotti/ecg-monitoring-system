@@ -2,6 +2,8 @@
 // Page de configuration du système de monitoring ECG
 $pageTitle = "Configuration";
 session_start();
+require_once '../../config/database.php';
+require_once '../../config/security.php';
 include_once '../../includes/header.php';
 
 // Vérifier si le formulaire a été soumis
@@ -26,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Hashage et encodage des données sensibles
-            $nomHash = hashData($nom);
+            $nomHash = hashSensitiveData($nom);
             $nomEncoded = encodeBase64($nom);
-            $numeroSecuHash = hashData($numeroSecu);
+            $numeroSecuHash = hashSensitiveData($numeroSecu);
             $numeroSecuEncoded = encodeBase64($numeroSecu);
             $adresseEncoded = encodeBase64($adresse);
             

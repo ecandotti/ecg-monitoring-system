@@ -1,12 +1,15 @@
 <?php
 /**
- * Fonctions utilitaires pour l'application
+ * Utility functions for the application
  */
 
+// Include authentication functions
+require_once __DIR__ . '/auth.php';
+
 /**
- * Redirige vers une URL spécifiée
+ * Redirect to a specified URL
  *
- * @param string $url L'URL de redirection
+ * @param string $url URL to redirect to
  * @return void
  */
 function redirect($url) {
@@ -15,59 +18,40 @@ function redirect($url) {
 }
 
 /**
- * Affiche un message de succès dans une alerte
+ * Display a success message in an alert
  *
- * @param string $message Le message à afficher
- * @return string Code HTML pour l'alerte
+ * @param string $message Message to display
+ * @return string HTML code for the alert
  */
 function showSuccess($message) {
     return '<div class="alert alert-success">' . $message . '</div>';
 }
 
 /**
- * Affiche un message d'erreur dans une alerte
+ * Display an error message in an alert
  *
- * @param string $message Le message à afficher
- * @return string Code HTML pour l'alerte
+ * @param string $message Message to display
+ * @return string HTML code for the alert
  */
 function showError($message) {
     return '<div class="alert alert-danger">' . $message . '</div>';
 }
 
 /**
- * Affiche un message d'information dans une alerte
+ * Display an information message in an alert
  *
- * @param string $message Le message à afficher
- * @return string Code HTML pour l'alerte
+ * @param string $message Message to display
+ * @return string HTML code for the alert
  */
 function showInfo($message) {
     return '<div class="alert alert-info">' . $message . '</div>';
 }
 
 /**
- * Vérifie si l'utilisateur est connecté
+ * Format date in locale format
  *
- * @return bool True si l'utilisateur est connecté, false sinon
- */
-function isLoggedIn() {
-    return isset($_SESSION['user_id']);
-}
-
-/**
- * Vérifie si l'utilisateur a un rôle spécifique
- *
- * @param string $role Le rôle à vérifier
- * @return bool True si l'utilisateur a le rôle spécifié, false sinon
- */
-function hasRole($role) {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === $role;
-}
-
-/**
- * Affiche la date au format français
- *
- * @param string $date Date au format MySQL
- * @return string Date au format français (jj/mm/aaaa)
+ * @param string $date Date in MySQL format
+ * @return string Date in locale format (dd/mm/yyyy)
  */
 function formatDate($date) {
     $timestamp = strtotime($date);
@@ -75,30 +59,30 @@ function formatDate($date) {
 }
 
 /**
- * Formate une valeur ECG pour l'affichage
+ * Format an ECG value for display
  *
- * @param float $value La valeur à formater
- * @return string Valeur formatée
+ * @param float $value Value to format
+ * @return string Formatted value
  */
 function formatEcgValue($value) {
-    return number_format($value, 2, ',', ' ') . ' mV';
+    return number_format($value, 2, '.', ' ') . ' mV';
 }
 
 /**
- * Fonction pour générer un ID unique pour une session d'acquisition
+ * Function to generate a unique ID for an acquisition session
  *
- * @return string ID unique
+ * @return string Unique ID
  */
 function generateSessionId() {
     return 'ECG-' . date('Ymd') . '-' . bin2hex(random_bytes(4));
 }
 
 /**
- * Crée un nom de fichier pour l'exportation de données ECG
+ * Create a filename for ECG data export
  * 
- * @param int $patientId ID du patient
- * @param string $date Date au format Y-m-d
- * @return string Nom du fichier
+ * @param int $patientId Patient ID
+ * @param string $date Date in Y-m-d format
+ * @return string Filename
  */
 function createEcgFileName($patientId, $date = null) {
     $date = $date ?: date('Y-m-d');

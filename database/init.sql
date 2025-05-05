@@ -62,6 +62,18 @@ CREATE TABLE IF NOT EXISTS `users` (
   `derniere_connexion` TIMESTAMP NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Table for remember me tokens
+CREATE TABLE IF NOT EXISTS `remember_tokens` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `token` VARCHAR(255) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_expires_at` (`expires_at`),
+  INDEX `idx_user_token` (`user_id`, `token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insertion d'un utilisateur admin par défaut (mot de passe: admin)
 INSERT INTO `users` (`username`, `password`, `role`) VALUES
-('admin', '$2y$10$9E4WKBuaGYmGJrmI/hXjreQ5WqojVx0.1.olR28/sm.px0S4HUh3K', 'admin'); 
+('admin', '$2y$10$0kTC8gQ5xgboB28eqzIR2.7LnJ29rEoSH.miHNinV4YoV7LWzbhee', 'admin'); 
