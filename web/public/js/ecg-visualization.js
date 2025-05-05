@@ -134,12 +134,8 @@ function createAdvancedEcgChart(canvasId, ecgData, timeData, wavePositions) {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            return `Amplitude: ${context.parsed.y.toFixed(2)} mV`;
-                        },
-                        title: function(context) {
-                            return `Temps: ${context[0].parsed.x.toFixed(2)} s`;
-                        }
+                        label: (context) => `Amplitude: ${context.parsed.y.toFixed(2)} mV`,
+                        title: (context) => `Temps: ${context[0].parsed.x.toFixed(2)} s`
                     }
                 }
             }
@@ -155,23 +151,23 @@ function createAdvancedEcgChart(canvasId, ecgData, timeData, wavePositions) {
 function updateWaveValues(waveValues) {
     // Mettre à jour les éléments HTML avec les valeurs des ondes
     if (waveValues.p !== undefined && document.getElementById('p-wave-value')) {
-        document.getElementById('p-wave-value').textContent = waveValues.p.toFixed(2) + ' mV';
+        document.getElementById('p-wave-value').textContent = `${waveValues.p.toFixed(2)} mV`;
     }
     
     if (waveValues.q !== undefined && document.getElementById('q-wave-value')) {
-        document.getElementById('q-wave-value').textContent = waveValues.q.toFixed(2) + ' mV';
+        document.getElementById('q-wave-value').textContent = `${waveValues.q.toFixed(2)} mV`;
     }
     
     if (waveValues.r !== undefined && document.getElementById('r-wave-value')) {
-        document.getElementById('r-wave-value').textContent = waveValues.r.toFixed(2) + ' mV';
+        document.getElementById('r-wave-value').textContent = `${waveValues.r.toFixed(2)} mV`;
     }
     
     if (waveValues.s !== undefined && document.getElementById('s-wave-value')) {
-        document.getElementById('s-wave-value').textContent = waveValues.s.toFixed(2) + ' mV';
+        document.getElementById('s-wave-value').textContent = `${waveValues.s.toFixed(2)} mV`;
     }
     
     if (waveValues.t !== undefined && document.getElementById('t-wave-value')) {
-        document.getElementById('t-wave-value').textContent = waveValues.t.toFixed(2) + ' mV';
+        document.getElementById('t-wave-value').textContent = `${waveValues.t.toFixed(2)} mV`;
     }
 }
 
@@ -248,7 +244,7 @@ async function initEcgVisualization(diagnosticId) {
         // Mise à jour des informations de relâchement des oreillettes si disponible
         if (diagnostic.temps_relachement_oreillettes && document.getElementById('atrial-release-time')) {
             document.getElementById('atrial-release-time').textContent = 
-                diagnostic.temps_relachement_oreillettes.toFixed(2) + ' ms';
+                `${diagnostic.temps_relachement_oreillettes.toFixed(2)} ms`;
         }
         
     } catch (error) {

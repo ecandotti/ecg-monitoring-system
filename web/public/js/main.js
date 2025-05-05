@@ -3,40 +3,40 @@
  * Fonctions communes utilisées dans l'application
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     // Initialiser les tooltips Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+    const tooltipTriggerList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')];
+    for (const tooltipTriggerEl of tooltipTriggerList) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+    }
     
     // Initialiser les popovers Bootstrap
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    const popoverTriggerList = [...document.querySelectorAll('[data-bs-toggle="popover"]')];
+    for (const popoverTriggerEl of popoverTriggerList) {
         return new bootstrap.Popover(popoverTriggerEl);
-    });
+    }
     
     // Fermeture automatique des alertes
-    document.querySelectorAll('.alert').forEach(function(alert) {
-        setTimeout(function() {
-            var bsAlert = new bootstrap.Alert(alert);
+    for (const alert of document.querySelectorAll('.alert')) {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
             bsAlert.close();
         }, 5000); // Les alertes se ferment après 5 secondes
-    });
+    }
     
     // Gestion des formulaires avec validation
     const forms = document.querySelectorAll('.needs-validation');
     
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
+    for (const form of forms) {
+        form.addEventListener('submit', (event) => {
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
             
             form.classList.add('was-validated');
-        }, false);
-    });
+        });
+    }
 });
 
 /**
@@ -46,19 +46,21 @@ document.addEventListener('DOMContentLoaded', function() {
  * @returns {string} Date formatée
  */
 function formatDate(date, withTime = false) {
+    let formattedDate = date;
+    
     if (!(date instanceof Date)) {
-        date = new Date(date);
+        formattedDate = new Date(date);
     }
     
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+    const day = String(formattedDate.getDate()).padStart(2, '0');
+    const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
+    const year = formattedDate.getFullYear();
     
     let formatted = `${day}/${month}/${year}`;
     
     if (withTime) {
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const hours = String(formattedDate.getHours()).padStart(2, '0');
+        const minutes = String(formattedDate.getMinutes()).padStart(2, '0');
         formatted += ` ${hours}:${minutes}`;
     }
     
