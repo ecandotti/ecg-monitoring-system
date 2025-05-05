@@ -28,14 +28,9 @@ define('PI_IP', getEnv('PI_IP', '192.168.1.100'));
 define('PI_PORT', getEnv('PI_PORT', '8000'));
 
 // Mode debug
-define('DEBUG', getEnv('DEBUG', false));
+define('DEBUG', true); // Force debug mode for troubleshooting
 
-// Activer le mode debug si nécessaire
-if (DEBUG) {
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    error_reporting(0);
-} 
+// Activer le mode debug
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL); 

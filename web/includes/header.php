@@ -27,7 +27,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- CSS personnalisé -->
-    <link rel="stylesheet" href="/public/css/main.css">
+    <link rel="stylesheet" href="/css/main.css">
     
     <?php if (isset($extraCss)): ?>
         <!-- CSS supplémentaire spécifique à la page -->
@@ -38,7 +38,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/public/index.php">
+            <a class="navbar-brand" href="/index.php">
                 <i class="fas fa-heartbeat me-2"></i>ECG Monitoring
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -47,7 +47,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/public/index.php">Accueil</a>
+                        <a class="nav-link" href="/index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/pages/configuration.php">Configuration</a>
@@ -68,12 +68,12 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
                                     <li><a class="dropdown-item" href="/admin/">Administration</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <?php endif; ?>
-                                <li><a class="dropdown-item" href="/public/logout.php">Déconnexion</a></li>
+                                <li><a class="dropdown-item" href="/logout.php">Déconnexion</a></li>
                             </ul>
                         </li>
                     <?php else: ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="/public/login.php">Connexion</a>
+                            <a class="nav-link" href="/login.php">Connexion</a>
                         </li>
                     <?php endif; ?>
                 </ul>

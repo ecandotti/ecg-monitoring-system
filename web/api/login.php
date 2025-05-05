@@ -7,13 +7,13 @@ require_once '../includes/functions.php';
 
 // Vérification de la méthode de requête
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/public/login.php');
+    redirect('/login.php');
 }
 
 // Vérification du token CSRF
 if (!validateCSRFToken($_POST['csrf_token'])) {
     setError('Session expirée. Veuillez réessayer.');
-    redirect('/public/login.php');
+    redirect('/login.php');
 }
 
 // Récupération des données soumises
@@ -24,7 +24,7 @@ $remember = isset($_POST['remember']);
 // Validation basique
 if (empty($username) || empty($password)) {
     setError('Veuillez remplir tous les champs.');
-    redirect('/public/login.php');
+    redirect('/login.php');
 }
 
 try {
@@ -67,7 +67,7 @@ try {
         redirect('/public/index.php');
     } else {
         setError('Identifiants incorrects.');
-        redirect('/public/login.php');
+        redirect('/login.php');
     }
 } catch (PDOException $e) {
     setError('Erreur de connexion: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur.'));

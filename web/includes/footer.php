@@ -6,6 +6,9 @@
             <div class="row">
                 <div class="col-md-6">
                     <span class="text-muted">Système de Monitoring ECG - Raspberry Pi</span>
+                    <a href="/index.php" class="ms-3 text-primary">
+                        <i class="fas fa-home"></i> Accueil
+                    </a>
                 </div>
                 <div class="col-md-6 text-end">
                     <span class="text-muted">&copy; <?php echo date('Y'); ?> ECG Monitoring</span>
@@ -24,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- JS personnalisé commun -->
-    <script src="/public/js/main.js"></script>
+    <script src="/js/main.js"></script>
     
     <?php if (isset($extraJs)): ?>
         <!-- JS supplémentaire spécifique à la page -->

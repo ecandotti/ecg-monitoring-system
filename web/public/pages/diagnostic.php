@@ -3,7 +3,8 @@
 $pageTitle = "Diagnostic";
 $extraCss = "/css/diagnostic.css";
 $extraJs = "/js/ecg-visualization.js";
-include_once '../includes/header.php';
+session_start();
+include_once '../../includes/header.php';
 
 // Récupération des diagnostics existants ou du diagnostic spécifique demandé
 $diagnosticId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -403,4 +404,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <?php endif; ?>
 
-<?php include_once '../includes/footer.php'; ?> 
+<?php include_once '../../includes/footer.php'; ?> 

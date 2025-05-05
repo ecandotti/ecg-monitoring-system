@@ -1,6 +1,7 @@
 <?php
 // Page d'accueil du système de monitoring ECG
 $pageTitle = "Accueil";
+session_start();
 include_once '../includes/header.php';
 ?>
 

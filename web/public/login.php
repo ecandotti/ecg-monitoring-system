@@ -11,7 +11,7 @@ include_once '../includes/header.php';
                 <h3 class="card-title"><i class="fas fa-sign-in-alt me-2"></i>Connexion</h3>
             </div>
             <div class="card-body">
-                <form method="post" action="/public/login_process.php">
+                <form method="post" action="/api/login.php">
                     <?php
                     // Génération d'un token CSRF
                     $csrf_token = generateCSRFToken();

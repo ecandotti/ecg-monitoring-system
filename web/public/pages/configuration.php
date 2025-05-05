@@ -1,7 +1,8 @@
 <?php
 // Page de configuration du système de monitoring ECG
 $pageTitle = "Configuration";
-include_once '../includes/header.php';
+session_start();
+include_once '../../includes/header.php';
 
 // Vérifier si le formulaire a été soumis
 $formSubmitted = false;
@@ -180,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-2"></i>Enregistrer la configuration
                 </button>
-                <a href="/" class="btn btn-secondary ms-2">
+                <a href="/index.php" class="btn btn-secondary ms-2">
                     <i class="fas fa-times me-2"></i>Annuler
                 </a>
             </div>
@@ -210,4 +211,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 })();
 </script>
 
-<?php include_once '../includes/footer.php'; ?> 
+<?php include_once '../../includes/footer.php'; ?> 

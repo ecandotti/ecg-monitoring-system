@@ -43,7 +43,6 @@ Toutes les données sensibles sont protégées :
 │   ├── config/              # Fichiers de configuration
 │   ├── public/              # Fichiers accessibles publiquement
 │   ├── includes/            # Composants réutilisables
-│   ├── pages/               # Pages de l'application
 │   └── api/                 # Points d'entrée API
 └── README.md                # Documentation
 ```
