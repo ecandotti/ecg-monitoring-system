@@ -1,6 +1,7 @@
 <?php
 // Page de connexion au système de monitoring ECG
 session_start();
+
 require_once '../config/database.php';
 require_once '../config/security.php';
 require_once '../includes/functions.php';
@@ -80,7 +81,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     $_SESSION['success'] = 'Connexion réussie.';
-                    redirect('/public/index.php');
+                    
+                    // Redirect to the saved URL if available, otherwise to the index page
+                    if (isset($_SESSION['redirect_after_login']) && !empty($_SESSION['redirect_after_login'])) {
+                        $redirect_url = $_SESSION['redirect_after_login'];
+                        unset($_SESSION['redirect_after_login']);
+                        redirect($redirect_url);
+                    } else {
+                        redirect('/pages/index.php');
+                    }
                     exit;
                 } else {
                     $_SESSION['error'] = 'Identifiants incorrects.';

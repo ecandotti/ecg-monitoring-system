@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <span class="text-muted">Système de Monitoring ECG - Raspberry Pi</span>
-                    <a href="/index.php" class="ms-3 text-primary">
+                    <a href="/pages/index.php" class="ms-3 text-primary">
                         <i class="fas fa-home"></i> Accueil
                     </a>
                 </div>

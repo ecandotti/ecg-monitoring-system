@@ -1,45 +1,54 @@
 <?php
-// Logout script
-session_start();
-require_once '../config/database.php';
-require_once '../config/security.php';
+/**
+ * Logout page
+ * 
+ * Destroys the session and redirects to the login page
+ */
 
-// Get user ID before clearing session
-$user_id = $_SESSION['user_id'] ?? null;
-
-// Clear session variables
-$_SESSION = array();
-
-// Destroy session cookie
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
+// Start the session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-// Handle remember token cleanup
+// Include functions
+require_once '../includes/functions.php';
+require_once '../config/security.php';
+require_once '../config/database.php';
+
+// Clear remember me cookie if it exists
 if (isset($_COOKIE['remember_token'])) {
-    // Delete cookie
-    setcookie('remember_token', '', time() - 3600, '/', '', false, true);
-    
-    // If we have the user ID, delete all remember tokens for this user from the database
-    if ($user_id) {
+    // Delete the token from database if we know the user
+    if (isset($_SESSION['user_id'])) {
         try {
             $db = getDbConnection();
             $query = "DELETE FROM remember_tokens WHERE user_id = :user_id";
             $stmt = $db->prepare($query);
-            $stmt->execute(['user_id' => $user_id]);
+            $stmt->execute(['user_id' => $_SESSION['user_id']]);
         } catch (Exception $e) {
-            // Silent fail - we're logging out anyway
+            // Silently fail, we're logging out anyway
         }
     }
+    
+    // Remove the cookie
+    setcookie('remember_token', '', time() - 3600, '/', '', false, true);
 }
 
-// Destroy session
-session_destroy();
+// Save user ID to a variable before destroying session
+$wasLoggedIn = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
 
-// Redirect to home page
-header('Location: /public/index.php');
-exit; 
+// Destroy the session
+$_SESSION = array();
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_destroy();
+}
+
+// Start a new session for the message
+session_start();
+if ($wasLoggedIn) {
+    $_SESSION['success'] = 'Vous avez été déconnecté avec succès.';
+}
+
+// Redirect to the login page
+header('Location: /login.php');
+exit;
+?> 

@@ -1,0 +1,11 @@
+# API Authentication
+# This file handles authentication for API requests differently
+
+# No direct PHP execution from outside the API folder
+<Files ~ "\.php$">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# API endpoints have their own authentication logic
+# This prevents them from being affected by the main auth_check.php script 

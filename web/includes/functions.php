@@ -3,9 +3,6 @@
  * Utility functions for the application
  */
 
-// Include authentication functions
-require_once __DIR__ . '/auth.php';
-
 /**
  * Redirect to a specified URL
  *

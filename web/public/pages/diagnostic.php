@@ -3,7 +3,7 @@
 $pageTitle = "Diagnostic";
 $extraCss = "/css/diagnostic.css";
 $extraJs = "/js/ecg-visualization.js";
-session_start();
+
 include_once '../../includes/header.php';
 
 // Récupération des diagnostics existants ou du diagnostic spécifique demandé

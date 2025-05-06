@@ -1,14 +1,10 @@
 <?php
-// Démarrage de la session si ce n'est pas déjà fait
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 // Inclusion des fichiers de configuration
 require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/security.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 // Récupération du titre de la page
 $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
@@ -38,7 +34,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/index.php">
+            <a class="navbar-brand" href="/pages/index.php">
                 <i class="fas fa-heartbeat me-2"></i>ECG Monitoring
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -47,7 +43,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/index.php">Accueil</a>
+                        <a class="nav-link" href="/pages/index.php">Accueil</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/pages/configuration.php">Configuration</a>
@@ -64,10 +60,6 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
                                 <i class="fa fa-user me-1"></i><?php echo htmlspecialchars($_SESSION['username']); ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <?php if (hasRole('admin')): ?>
-                                    <li><a class="dropdown-item" href="/admin/">Administration</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                <?php endif; ?>
                                 <li><a class="dropdown-item" href="/logout.php">Déconnexion</a></li>
                             </ul>
                         </li>

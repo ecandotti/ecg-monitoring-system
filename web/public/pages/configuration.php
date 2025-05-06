@@ -1,7 +1,6 @@
 <?php
 // Page de configuration du système de monitoring ECG
 $pageTitle = "Configuration";
-session_start();
 require_once '../../config/database.php';
 require_once '../../config/security.php';
 include_once '../../includes/header.php';
