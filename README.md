@@ -43,7 +43,6 @@ ecg-monitoring-system/
 │       ├── login.php      # Page de connexion
 │       └── logout.php     # Gestionnaire de déconnexion
 ├── apache-config.conf     # Configuration du serveur Apache
-├── apache-site-config.conf # Configuration du site Apache
 ├── docker-compose.yml     # Définition de la composition Docker
 ├── Dockerfile             # Définition de l'image Docker
 └── Makefile               # Commandes de construction et de gestion
