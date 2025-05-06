@@ -51,7 +51,7 @@ try {
         $samples = [];
         $sampleCount = 500; // Nombre d'échantillons simulés
         $frequence = 250; // Hz
-        $duree = $config['temps_acquisition'];
+        $duree = $config['acquisition_time'];
         $sampleCount = $frequence * $duree; // Nombre total d'échantillons
         
         // Génération d'un signal ECG basique simulé
@@ -84,7 +84,7 @@ try {
             
             $samples[] = [
                 'timestamp' => $time,
-                'valeur' => $value
+                'value' => $value
             ];
         }
         
@@ -109,7 +109,7 @@ try {
         $samples = array_map(function($row) {
             return [
                 'timestamp' => (float)$row['timestamp'],
-                'valeur' => (float)$row['valeur']
+                'value' => (float)$row['value']
             ];
         }, $ecgData);
         

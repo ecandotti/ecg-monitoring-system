@@ -32,7 +32,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 
 try {
     // Récupération des données du diagnostic
-    $sql = "SELECT d.*, c.temps_acquisition, c.patient_id 
+    $sql = "SELECT d.*, c.acquisition_time, c.patient_id 
             FROM diagnostics d 
             JOIN configurations c ON d.configuration_id = c.id 
             WHERE d.id = ?";
@@ -58,24 +58,24 @@ try {
     $response = [
         'id' => $diagnostic['id'],
         'configuration_id' => $diagnostic['configuration_id'],
-        'nom_professeur' => $diagnostic['nom_professeur'],
-        'adresse_consultation' => $diagnostic['adresse_consultation'],
-        'compte_rendu' => $diagnostic['compte_rendu'],
-        'temps_relachement_oreillettes' => (float)$diagnostic['temps_relachement_oreillettes'],
-        'onde_p' => (float)$diagnostic['onde_p'],
-        'onde_q' => (float)$diagnostic['onde_q'],
-        'onde_r' => (float)$diagnostic['onde_r'],
-        'onde_s' => (float)$diagnostic['onde_s'],
-        'onde_t' => (float)$diagnostic['onde_t'],
-        'date_diagnostic' => $diagnostic['date_diagnostic'],
+        'professor_name' => $diagnostic['professor_name'],
+        'consultation_address' => $diagnostic['consultation_address'],
+        'report' => $diagnostic['report'],
+        'atrial_release_time' => (float)$diagnostic['atrial_release_time'],
+        'p_wave' => (float)$diagnostic['p_wave'],
+        'q_wave' => (float)$diagnostic['q_wave'],
+        'r_wave' => (float)$diagnostic['r_wave'],
+        's_wave' => (float)$diagnostic['s_wave'],
+        't_wave' => (float)$diagnostic['t_wave'],
+        'diagnosis_date' => $diagnostic['diagnosis_date'],
         'patient' => [
             'id' => $patient['id'],
-            'nom' => decodeBase64($patient['nom_encoded']),
-            'groupe_sanguin' => $patient['groupe_sanguin'],
-            'telephone' => $patient['telephone']
+            'name' => decodeBase64($patient['name_encoded']),
+            'blood_type' => $patient['blood_type'],
+            'phone' => $patient['phone']
         ],
         'acquisition' => [
-            'temps_acquisition' => (int)$diagnostic['temps_acquisition']
+            'acquisition_time' => (int)$diagnostic['acquisition_time']
         ]
     ];
     

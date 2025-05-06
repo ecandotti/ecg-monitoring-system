@@ -1,6 +1,7 @@
 <?php
 // Page de configuration du système de monitoring ECG
 $pageTitle = "Configuration";
+$extraCss = "/css/pages/configuration.css";
 require_once '../../config/database.php';
 require_once '../../config/security.php';
 include_once '../../includes/header.php';
@@ -76,114 +77,110 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2><i class="fas fa-cog me-2"></i>Configuration du système ECG</h2>
-        <p class="lead">Entrez les informations du patient et configurez les paramètres d'acquisition</p>
-    </div>
+<div class="config-header">
+    <h2 class="page-title"><i class="fas fa-cog icon-spacing"></i>Configuration du système ECG</h2>
+    <p class="page-subtitle">Entrez les informations du patient et configurez les paramètres d'acquisition</p>
 </div>
 
 <?php if ($formSubmitted && $formSuccess): ?>
     <div class="alert alert-success">
-        <i class="fas fa-check-circle me-2"></i>
+        <i class="fas fa-check-circle icon-spacing"></i>
         <strong>Succès!</strong> La configuration a été enregistrée avec succès.
         <div class="mt-3">
             <a href="/pages/diagnostic.php" class="btn btn-primary">
-                <i class="fas fa-stethoscope me-2"></i>Aller au diagnostic
+                <i class="fas fa-stethoscope"></i>Aller au diagnostic
             </a>
         </div>
     </div>
 <?php elseif ($formSubmitted && !empty($formError)): ?>
     <div class="alert alert-danger">
-        <i class="fas fa-exclamation-circle me-2"></i>
+        <i class="fas fa-exclamation-circle icon-spacing"></i>
         <strong>Erreur!</strong> <?php echo $formError; ?>
     </div>
 <?php endif; ?>
 
-<div class="card">
+<div class="card config-card">
     <div class="card-header">
         <h3 class="card-title">Informations du patient et paramètres</h3>
     </div>
     <div class="card-body">
         <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" class="needs-validation" novalidate>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="nom" class="form-label">Nom complet</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        <input type="text" class="form-control" id="nom" name="nom" required>
-                        <div class="invalid-feedback">Veuillez entrer le nom du patient.</div>
-                    </div>
-                    <small class="text-muted">Cette information sera cryptée</small>
-                </div>
+            <div class="config-section">
+                <h4 class="section-title"><i class="fas fa-user icon-spacing"></i>Informations personnelles</h4>
                 
-                <div class="col-md-6 mb-3">
-                    <label for="numero_secu" class="form-label">Numéro de sécurité sociale</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                        <input type="text" class="form-control" id="numero_secu" name="numero_secu" pattern="[0-9]{15}" required>
-                        <div class="invalid-feedback">Veuillez entrer un numéro de sécurité sociale valide (15 chiffres).</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nom" class="form-label">Nom complet</label>
+                        <div class="flex items-center">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="nom" name="nom" required>
+                        </div>
+                        <small class="text-muted">Cette information sera cryptée</small>
                     </div>
-                    <small class="text-muted">Cette information sera cryptée</small>
-                </div>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="telephone" class="form-label">Numéro de téléphone</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                        <input type="tel" class="form-control" id="telephone" name="telephone" required>
-                        <div class="invalid-feedback">Veuillez entrer un numéro de téléphone.</div>
+                    
+                    <div class="form-group">
+                        <label for="numero_secu" class="form-label">Numéro de sécurité sociale</label>
+                        <div class="flex items-center">
+                            <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                            <input type="text" class="form-control" id="numero_secu" name="numero_secu" pattern="[0-9]{15}" required>
+                        </div>
+                        <small class="text-muted">Cette information sera cryptée</small>
                     </div>
                 </div>
                 
-                <div class="col-md-6 mb-3">
-                    <label for="groupe_sanguin" class="form-label">Groupe sanguin</label>
-                    <select class="form-select" id="groupe_sanguin" name="groupe_sanguin" required>
-                        <option value="" selected disabled>Sélectionnez...</option>
-                        <option value="A+">A+</option>
-                        <option value="A-">A-</option>
-                        <option value="B+">B+</option>
-                        <option value="B-">B-</option>
-                        <option value="AB+">AB+</option>
-                        <option value="AB-">AB-</option>
-                        <option value="O+">O+</option>
-                        <option value="O-">O-</option>
-                    </select>
-                    <div class="invalid-feedback">Veuillez sélectionner un groupe sanguin.</div>
+                <div class="form-row-2-col">
+                    <div class="form-group">
+                        <label for="telephone" class="form-label">Numéro de téléphone</label>
+                        <div class="flex items-center">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="tel" class="form-control" id="telephone" name="telephone" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="groupe_sanguin" class="form-label">Groupe sanguin</label>
+                        <select class="form-select" id="groupe_sanguin" name="groupe_sanguin" required>
+                            <option value="" selected disabled>Sélectionnez...</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adresse" class="form-label">Adresse</label>
+                    <div class="flex items-center">
+                        <span class="input-group-text"><i class="fas fa-home"></i></span>
+                        <textarea class="form-control" id="adresse" name="adresse" rows="3" required></textarea>
+                    </div>
+                    <small class="text-muted">Cette information sera cryptée</small>
                 </div>
             </div>
             
-            <div class="mb-3">
-                <label for="adresse" class="form-label">Adresse</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-home"></i></span>
-                    <textarea class="form-control" id="adresse" name="adresse" rows="3" required></textarea>
-                    <div class="invalid-feedback">Veuillez entrer une adresse.</div>
-                </div>
-                <small class="text-muted">Cette information sera cryptée</small>
-            </div>
-            
-            <hr class="my-4">
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="temps_acquisition" class="form-label">Temps d'acquisition (secondes)</label>
-                    <div class="input-group">
+            <div class="config-section">
+                <h4 class="section-title"><i class="fas fa-clock icon-spacing"></i>Paramètres d'acquisition</h4>
+                
+                <div class="form-group">
+                    <label for="temps_acquisition" class="param-label">Temps d'acquisition (secondes)</label>
+                    <div class="flex items-center">
                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
                         <input type="number" class="form-control" id="temps_acquisition" name="temps_acquisition" min="1" value="60" required>
-                        <div class="invalid-feedback">Veuillez entrer un temps d'acquisition valide (minimum 1 seconde).</div>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-4">
+            <div class="config-actions">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>Enregistrer la configuration
+                    <i class="fas fa-save icon-spacing"></i>Enregistrer la configuration
                 </button>
-                <a href="/index.php" class="btn btn-secondary ms-2">
-                    <i class="fas fa-times me-2"></i>Annuler
+                <a href="/index.php" class="btn btn-secondary">
+                    <i class="fas fa-times icon-spacing"></i>Annuler
                 </a>
             </div>
         </form>
@@ -192,24 +189,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script>
 // Script de validation du formulaire côté client
-(function() {
-    'use strict';
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('.needs-validation');
     
-    // Récupérer tous les formulaires avec la classe .needs-validation
-    var forms = document.querySelectorAll('.needs-validation');
-    
-    // Boucle pour empêcher la soumission
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
+    for (const form of forms) {
+        form.addEventListener('submit', (event) => {
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
             
             form.classList.add('was-validated');
-        }, false);
-    });
-})();
+        });
+    }
+});
 </script>
 
 <?php include_once '../../includes/footer.php'; ?> 

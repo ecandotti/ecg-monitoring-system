@@ -16,9 +16,6 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?> - Raspberry Pi ECG</title>
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -32,15 +29,15 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+    <nav class="navbar">
+        <div class="container navbar-container">
             <a class="navbar-brand" href="/pages/index.php">
-                <i class="fas fa-heartbeat me-2"></i>ECG Monitoring
+                <i class="fas fa-heartbeat"></i>ECG Monitoring
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-collapse">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/pages/index.php">Accueil</a>
@@ -56,8 +53,8 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
                 <ul class="navbar-nav ms-auto">
                     <?php if (isLoggedIn()): ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fa fa-user me-1"></i><?php echo htmlspecialchars($_SESSION['username']); ?>
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button">
+                                <i class="fa fa-user icon-spacing"></i><?php echo htmlspecialchars($_SESSION['username']); ?>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="/logout.php">Déconnexion</a></li>
@@ -73,25 +70,22 @@ $pageTitle = isset($pageTitle) ? $pageTitle : 'Système de Monitoring ECG';
         </div>
     </nav>
 
-    <!-- Contenu principal -->
-    <div class="container mt-4">
-        <?php
-        // Affichage des messages d'alerte stockés en session
-        if (isset($_SESSION['success'])) {
-            echo showSuccess($_SESSION['success']);
-            unset($_SESSION['success']);
-        }
-        
-        if (isset($_SESSION['error'])) {
-            echo showError($_SESSION['error']);
-            unset($_SESSION['error']);
-        }
-        
-        if (isset($_SESSION['info'])) {
-            echo showInfo($_SESSION['info']);
-            unset($_SESSION['info']);
-        }
-        ?>
-    </div>
-</body>
-</html> 
+    <main class="main-content">
+        <div class="container">
+            <?php
+            // Affichage des messages d'alerte stockés en session
+            if (isset($_SESSION['success'])) {
+                echo showSuccess($_SESSION['success']);
+                unset($_SESSION['success']);
+            }
+            
+            if (isset($_SESSION['error'])) {
+                echo showError($_SESSION['error']);
+                unset($_SESSION['error']);
+            }
+            
+            if (isset($_SESSION['info'])) {
+                echo showInfo($_SESSION['info']);
+                unset($_SESSION['info']);
+            }
+            ?>

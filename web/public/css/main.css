@@ -1,126 +1,163 @@
-/* Styles généraux */
+/*
+ * Main Styles
+ * General styles for the ECG monitoring system
+ */
+
+/* Import base styles */
+@import url('reset.css');
+@import url('variables.css');
+@import url('layout.css');
+@import url('components.css');
+@import url('navbar.css');
+@import url('footer.css');
+@import url('utilities.css');
+
+/* Body setup */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 60px; /* Espace pour le footer */
-    position: relative;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--body-color);
+  background-color: var(--body-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 60px;
+/* Typography base styles */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: var(--spacing-3);
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  color: var(--color-gray-900);
 }
 
-/* Styles pour les cartes */
-.card {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-3xl); }
+h3 { font-size: var(--font-size-2xl); }
+h4 { font-size: var(--font-size-xl); }
+h5 { font-size: var(--font-size-lg); }
+h6 { font-size: var(--font-size-base); }
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--spacing-4);
 }
 
-.card-header {
-    font-weight: bold;
-    background-color: rgba(0, 123, 255, 0.1);
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-normal) ease-in-out;
 }
 
-/* Styles pour les boutons */
-.btn-primary {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+a:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
 }
 
-.btn-primary:hover {
-    background-color: #0b5ed7;
-    border-color: #0a58ca;
+i {
+    margin-right: var(--spacing-3);
 }
 
-.btn-success {
-    background-color: #198754;
-    border-color: #198754;
+input[type="checkbox"], label {
+    cursor: pointer;
 }
 
-.btn-success:hover {
-    background-color: #157347;
-    border-color: #146c43;
-}
-
-/* Formulaires */
-.form-label {
-    font-weight: 500;
-}
-
-.form-control:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-/* Alertes */
-.alert {
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-/* Styles pour le graphique ECG */
+/* ECG Chart specific styles */
 .ecg-chart-container {
-    width: 100%;
-    height: 300px;
-    margin-bottom: 30px;
+  width: 100%;
+  height: 300px;
+  margin-bottom: var(--spacing-6);
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  padding: var(--spacing-4);
 }
 
-/* Badge pour groupe sanguin */
+/* Blood type badge styling */
 .blood-type-badge {
-    font-size: 0.9rem;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 20px;
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--border-radius-full);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  background-color: var(--color-danger-light);
+  color: var(--color-white);
 }
 
-/* Icônes avec espacement */
-i.icon-spacing {
-    margin-right: 8px;
+.blood-type-badge.a-pos, .blood-type-badge.a-neg {
+  background-color: var(--color-primary);
 }
 
-/* Styles spécifiques pour l'impression */
+.blood-type-badge.b-pos, .blood-type-badge.b-neg {
+  background-color: var(--color-info);
+}
+
+.blood-type-badge.ab-pos, .blood-type-badge.ab-neg {
+  background-color: var(--color-secondary);
+}
+
+.blood-type-badge.o-pos, .blood-type-badge.o-neg {
+  background-color: var(--color-success);
+}
+
+/* Page specific content styles */
+.page-header {
+  margin-bottom: var(--spacing-6);
+}
+
+.page-title {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-2);
+}
+
+.page-subtitle {
+  color: var(--color-gray-600);
+  font-size: var(--font-size-lg);
+}
+
+/* Responsive adaptations */
+@media (max-width: 767px) {
+  .ecg-chart-container {
+    height: 200px;
+  }
+  
+  .page-header {
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .page-title {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .page-subtitle {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Print styles */
 @media print {
-    .no-print {
-        display: none !important;
-    }
-    
-    .print-only {
-        display: block !important;
-    }
-    
-    .container {
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    body {
-        font-size: 12pt;
-    }
-    
-    .ecg-chart-container {
-        height: 200px;
-        page-break-inside: avoid;
-    }
-}
-
-/* Styles adaptés pour mobile */
-@media (max-width: 767.98px) {
-    .container {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    
-    .card {
-        margin-bottom: 15px;
-    }
-    
-    .ecg-chart-container {
-        height: 200px;
-    }
+  body {
+    font-size: 12pt;
+  }
+  
+  .ecg-chart-container {
+    height: 200px;
+    page-break-inside: avoid;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+  
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+  
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
 } 

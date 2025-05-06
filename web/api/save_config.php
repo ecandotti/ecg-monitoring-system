@@ -40,7 +40,7 @@ if ($data === null) {
 }
 
 // Vérification des paramètres requis
-$requiredFields = ['nom', 'numero_secu', 'telephone', 'adresse', 'groupe_sanguin', 'temps_acquisition'];
+$requiredFields = ['name', 'secu', 'phone', 'address', 'blood_type', 'acquisition_time'];
 $missingFields = [];
 
 foreach ($requiredFields as $field) {
@@ -59,21 +59,21 @@ if (!empty($missingFields)) {
 }
 
 // Récupération et validation des données
-$nom = trim($data['nom']);
-$numeroSecu = trim($data['numero_secu']);
-$telephone = trim($data['telephone']);
-$adresse = trim($data['adresse']);
-$groupeSanguin = trim($data['groupe_sanguin']);
-$tempsAcquisition = (int)$data['temps_acquisition'];
+$name = trim($data['name']);
+$secu = trim($data['secu']);
+$phone = trim($data['phone']);
+$address = trim($data['address']);
+$bloodType = trim($data['blood_type']);
+$acquisitionTime = (int)$data['acquisition_time'];
 
 // Validation supplémentaire
-if (strlen($numeroSecu) !== 15 || !ctype_digit($numeroSecu)) {
+if (strlen($secu) !== 15 || !ctype_digit($secu)) {
     http_response_code(400); // Bad Request
     echo json_encode(['error' => 'Numéro de sécurité sociale invalide (15 chiffres attendus)']);
     exit;
 }
 
-if ($tempsAcquisition <= 0) {
+if ($acquisitionTime <= 0) {
     http_response_code(400); // Bad Request
     echo json_encode(['error' => 'Temps d\'acquisition invalide (doit être supérieur à 0)']);
     exit;
@@ -81,21 +81,21 @@ if ($tempsAcquisition <= 0) {
 
 try {
     // Hashage et encodage des données sensibles
-    $nomHash = hashSensitiveData($nom);
-    $nomEncoded = encodeBase64($nom);
-    $numeroSecuHash = hashSensitiveData($numeroSecu);
-    $numeroSecuEncoded = encodeBase64($numeroSecu);
-    $adresseEncoded = encodeBase64($adresse);
+    $nameHash = hashSensitiveData($name);
+    $nameEncoded = encodeBase64($name);
+    $secuHash = hashSensitiveData($secu);
+    $secuEncoded = encodeBase64($secu);
+    $addressEncoded = encodeBase64($address);
     
     // Insertion des données du patient
     $patientData = [
-        'nom_hash' => $nomHash,
-        'nom_encoded' => $nomEncoded,
-        'numero_secu_hash' => $numeroSecuHash,
-        'numero_secu_encoded' => $numeroSecuEncoded,
-        'telephone' => $telephone,
-        'adresse_encoded' => $adresseEncoded,
-        'groupe_sanguin' => $groupeSanguin
+        'name_hash' => $nameHash,
+        'name_encoded' => $nameEncoded,
+        'secu_hash' => $secuHash,
+        'secu_encoded' => $secuEncoded,
+        'phone' => $phone,
+        'address_encoded' => $addressEncoded,
+        'blood_type' => $bloodType
     ];
     
     $patientId = insert('patients', $patientData);
@@ -104,7 +104,7 @@ try {
         // Insertion de la configuration
         $configData = [
             'patient_id' => $patientId,
-            'temps_acquisition' => $tempsAcquisition
+            'acquisition_time' => $acquisitionTime
         ];
         
         $configId = insert('configurations', $configData);
