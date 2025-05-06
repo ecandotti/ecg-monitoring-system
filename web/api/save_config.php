@@ -2,15 +2,18 @@
 /**
  * API pour sauvegarder une configuration
  * Accepte des données au format JSON dans le corps de la requête POST
- * Structure attendue:
+ * Structure attendue (JSON):
  * {
- *    "nom": "John Doe",
- *    "numero_secu": "123456789012345",
- *    "telephone": "0123456789",
- *    "adresse": "123 Rue Example, Ville, Pays",
- *    "groupe_sanguin": "O+",
- *    "temps_acquisition": 60
+ *    "name": "John Doe",
+ *    "secu": "123456789012345",
+ *    "phone": "0123456789",
+ *    "address": "123 Rue Example, Ville, Pays",
+ *    "blood_type": "O+",
+ *    "acquisition_time": 60
  * }
+ * 
+ * Accepte également des données de formulaire traditionnel avec les noms:
+ * nom, numero_secu, telephone, adresse, groupe_sanguin, temps_acquisition
  */
 
 // Inclusion des fichiers nécessaires
@@ -28,15 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // En-têtes pour la réponse JSON
 header('Content-Type: application/json');
 
-// Récupération des données JSON du corps de la requête
-$jsonData = file_get_contents('php://input');
-$data = json_decode($jsonData, true);
+// Détecter le type de contenu
+$contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '';
+$isJsonRequest = strpos($contentType, 'application/json') !== false;
 
-// Vérification de la validité des données JSON
-if ($data === null) {
-    http_response_code(400); // Bad Request
-    echo json_encode(['error' => 'Données JSON invalides']);
-    exit;
+if ($isJsonRequest) {
+    // Récupération des données JSON du corps de la requête
+    $jsonData = file_get_contents('php://input');
+    $data = json_decode($jsonData, true);
+    
+    // Vérification de la validité des données JSON
+    if ($data === null) {
+        http_response_code(400); // Bad Request
+        echo json_encode(['error' => 'Données JSON invalides']);
+        exit;
+    }
+} else {
+    // Récupération des données de formulaire traditionnelles
+    $data = [
+        'name' => isset($_POST['nom']) ? $_POST['nom'] : '',
+        'secu' => isset($_POST['numero_secu']) ? $_POST['numero_secu'] : '',
+        'phone' => isset($_POST['telephone']) ? $_POST['telephone'] : '',
+        'address' => isset($_POST['adresse']) ? $_POST['adresse'] : '',
+        'blood_type' => isset($_POST['groupe_sanguin']) ? $_POST['groupe_sanguin'] : '',
+        'acquisition_time' => isset($_POST['temps_acquisition']) ? (int)$_POST['temps_acquisition'] : 0
+    ];
 }
 
 // Vérification des paramètres requis

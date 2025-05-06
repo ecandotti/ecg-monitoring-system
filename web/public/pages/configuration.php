@@ -1,4 +1,7 @@
 <?php
+// Activer la mise en tampon de sortie pour permettre l'envoi d'en-têtes après l'affichage de contenu
+ob_start();
+
 // Page de configuration du système de monitoring ECG
 $pageTitle = "Configuration";
 $extraCss = "/css/pages/configuration.css";
@@ -10,6 +13,8 @@ include_once '../../includes/header.php';
 $formSubmitted = false;
 $formSuccess = false;
 $formError = '';
+$errors = []; // Tableau pour stocker les erreurs par champ
+$redirectToUrl = ''; // Pour stocker l'URL de redirection si besoin
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formSubmitted = true;
@@ -23,9 +28,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tempsAcquisition = isset($_POST['temps_acquisition']) ? (int)$_POST['temps_acquisition'] : 0;
     
     // Validation des données
-    if (empty($nom) || empty($numeroSecu) || empty($telephone) || empty($adresse) || empty($groupeSanguin) || $tempsAcquisition <= 0) {
-        $formError = 'Tous les champs sont obligatoires et le temps d\'acquisition doit être supérieur à 0.';
-    } else {
+    if (empty($nom)) {
+        $errors['nom'] = 'Le nom est requis';
+    }
+    
+    if (empty($numeroSecu)) {
+        $errors['numero_secu'] = 'Le numéro de sécurité sociale est requis';
+    } elseif (!preg_match('/^\d{15}$/', $numeroSecu)) {
+        $errors['numero_secu'] = 'Le numéro de sécurité sociale doit contenir 15 chiffres';
+    }
+    
+    if (empty($telephone)) {
+        $errors['telephone'] = 'Le téléphone est requis';
+    }
+    
+    if (empty($adresse)) {
+        $errors['adresse'] = 'L\'adresse est requise';
+    }
+    
+    if (empty($groupeSanguin)) {
+        $errors['groupe_sanguin'] = 'Le groupe sanguin est requis';
+    }
+    
+    if ($tempsAcquisition <= 0) {
+        $errors['temps_acquisition'] = 'Le temps d\'acquisition doit être supérieur à 0';
+    }
+    
+    // Si aucune erreur, procéder à l'enregistrement
+    if (empty($errors)) {
         try {
             // Hashage et encodage des données sensibles
             $nomHash = hashSensitiveData($nom);
@@ -39,13 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             // Insertion des données du patient
             $patientData = [
-                'nom_hash' => $nomHash,
-                'nom_encoded' => $nomEncoded,
-                'numero_secu_hash' => $numeroSecuHash,
-                'numero_secu_encoded' => $numeroSecuEncoded,
-                'telephone' => $telephone,
-                'adresse_encoded' => $adresseEncoded,
-                'groupe_sanguin' => $groupeSanguin
+                'name_hash' => $nomHash,
+                'name_encoded' => $nomEncoded,
+                'secu_hash' => $numeroSecuHash,
+                'secu_encoded' => $numeroSecuEncoded,
+                'phone' => $telephone,
+                'address_encoded' => $adresseEncoded,
+                'blood_type' => $groupeSanguin
             ];
             
             $patientId = insert('patients', $patientData);
@@ -54,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Insertion de la configuration
                 $configData = [
                     'patient_id' => $patientId,
-                    'temps_acquisition' => $tempsAcquisition
+                    'acquisition_time' => $tempsAcquisition
                 ];
                 
                 $configId = insert('configurations', $configData);
@@ -64,6 +94,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['success'] = 'Configuration enregistrée avec succès. ID de configuration: ' . $configId;
                     $_SESSION['config_id'] = $configId;
                     $_SESSION['patient_id'] = $patientId;
+                    
+                    // Au lieu d'utiliser header(), nous allons utiliser une variable pour rediriger avec JavaScript
+                    $redirectToUrl = '/pages/diagnostic.php';
                 } else {
                     $formError = 'Erreur lors de l\'enregistrement de la configuration.';
                 }
@@ -73,6 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $formError = 'Une erreur est survenue: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur');
         }
+    } else {
+        $formError = 'Veuillez corriger les erreurs dans le formulaire.';
     }
 }
 ?>
@@ -82,7 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <p class="page-subtitle">Entrez les informations du patient et configurez les paramètres d'acquisition</p>
 </div>
 
-<?php if ($formSubmitted && $formSuccess): ?>
+<?php if ($formSubmitted && !empty($formError)): ?>
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle icon-spacing"></i>
+        <strong>Erreur!</strong> <?php echo $formError; ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($formSuccess): ?>
     <div class="alert alert-success">
         <i class="fas fa-check-circle icon-spacing"></i>
         <strong>Succès!</strong> La configuration a été enregistrée avec succès.
@@ -92,11 +134,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
         </div>
     </div>
-<?php elseif ($formSubmitted && !empty($formError)): ?>
-    <div class="alert alert-danger">
-        <i class="fas fa-exclamation-circle icon-spacing"></i>
-        <strong>Erreur!</strong> <?php echo $formError; ?>
-    </div>
 <?php endif; ?>
 
 <div class="card config-card">
@@ -104,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h3 class="card-title">Informations du patient et paramètres</h3>
     </div>
     <div class="card-body">
-        <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" class="needs-validation" novalidate>
+        <form id="config-form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="POST" class="needs-validation">
             <div class="config-section">
                 <h4 class="section-title"><i class="fas fa-user icon-spacing"></i>Informations personnelles</h4>
                 
@@ -113,8 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="nom" class="form-label">Nom complet</label>
                         <div class="flex items-center">
                             <span class="input-group-text"><i class="fas fa-user"></i></span>
-                            <input type="text" class="form-control" id="nom" name="nom" required>
+                            <input type="text" class="form-control <?php echo isset($errors['nom']) ? 'is-invalid' : ''; ?>" 
+                                id="nom" name="nom" value="<?php echo isset($nom) ? htmlspecialchars($nom) : ''; ?>">
                         </div>
+                        <?php if (isset($errors['nom'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['nom']; ?></div>
+                        <?php endif; ?>
                         <small class="text-muted">Cette information sera cryptée</small>
                     </div>
                     
@@ -122,8 +163,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="numero_secu" class="form-label">Numéro de sécurité sociale</label>
                         <div class="flex items-center">
                             <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                            <input type="text" class="form-control" id="numero_secu" name="numero_secu" pattern="[0-9]{15}" required>
+                            <input type="text" class="form-control <?php echo isset($errors['numero_secu']) ? 'is-invalid' : ''; ?>" 
+                                id="numero_secu" name="numero_secu" value="<?php echo isset($numeroSecu) ? htmlspecialchars($numeroSecu) : ''; ?>">
                         </div>
+                        <?php if (isset($errors['numero_secu'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['numero_secu']; ?></div>
+                        <?php endif; ?>
                         <small class="text-muted">Cette information sera cryptée</small>
                     </div>
                 </div>
@@ -133,23 +178,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="telephone" class="form-label">Numéro de téléphone</label>
                         <div class="flex items-center">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="tel" class="form-control" id="telephone" name="telephone" required>
+                            <input type="tel" class="form-control <?php echo isset($errors['telephone']) ? 'is-invalid' : ''; ?>" 
+                                id="telephone" name="telephone" value="<?php echo isset($telephone) ? htmlspecialchars($telephone) : ''; ?>">
                         </div>
+                        <?php if (isset($errors['telephone'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['telephone']; ?></div>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="form-group">
                         <label for="groupe_sanguin" class="form-label">Groupe sanguin</label>
-                        <select class="form-select" id="groupe_sanguin" name="groupe_sanguin" required>
-                            <option value="" selected disabled>Sélectionnez...</option>
-                            <option value="A+">A+</option>
-                            <option value="A-">A-</option>
-                            <option value="B+">B+</option>
-                            <option value="B-">B-</option>
-                            <option value="AB+">AB+</option>
-                            <option value="AB-">AB-</option>
-                            <option value="O+">O+</option>
-                            <option value="O-">O-</option>
+                        <select class="form-select <?php echo isset($errors['groupe_sanguin']) ? 'is-invalid' : ''; ?>" 
+                            id="groupe_sanguin" name="groupe_sanguin">
+                            <option value="" <?php echo !isset($groupeSanguin) || empty($groupeSanguin) ? 'selected' : ''; ?> disabled>Sélectionnez...</option>
+                            <option value="A+" <?php echo isset($groupeSanguin) && $groupeSanguin === 'A+' ? 'selected' : ''; ?>>A+</option>
+                            <option value="A-" <?php echo isset($groupeSanguin) && $groupeSanguin === 'A-' ? 'selected' : ''; ?>>A-</option>
+                            <option value="B+" <?php echo isset($groupeSanguin) && $groupeSanguin === 'B+' ? 'selected' : ''; ?>>B+</option>
+                            <option value="B-" <?php echo isset($groupeSanguin) && $groupeSanguin === 'B-' ? 'selected' : ''; ?>>B-</option>
+                            <option value="AB+" <?php echo isset($groupeSanguin) && $groupeSanguin === 'AB+' ? 'selected' : ''; ?>>AB+</option>
+                            <option value="AB-" <?php echo isset($groupeSanguin) && $groupeSanguin === 'AB-' ? 'selected' : ''; ?>>AB-</option>
+                            <option value="O+" <?php echo isset($groupeSanguin) && $groupeSanguin === 'O+' ? 'selected' : ''; ?>>O+</option>
+                            <option value="O-" <?php echo isset($groupeSanguin) && $groupeSanguin === 'O-' ? 'selected' : ''; ?>>O-</option>
                         </select>
+                        <?php if (isset($errors['groupe_sanguin'])): ?>
+                            <div class="invalid-feedback"><?php echo $errors['groupe_sanguin']; ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
                 
@@ -157,8 +210,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="adresse" class="form-label">Adresse</label>
                     <div class="flex items-center">
                         <span class="input-group-text"><i class="fas fa-home"></i></span>
-                        <textarea class="form-control" id="adresse" name="adresse" rows="3" required></textarea>
+                        <textarea class="form-control <?php echo isset($errors['adresse']) ? 'is-invalid' : ''; ?>" 
+                            id="adresse" name="adresse" rows="3"><?php echo isset($adresse) ? htmlspecialchars($adresse) : ''; ?></textarea>
                     </div>
+                    <?php if (isset($errors['adresse'])): ?>
+                        <div class="invalid-feedback"><?php echo $errors['adresse']; ?></div>
+                    <?php endif; ?>
                     <small class="text-muted">Cette information sera cryptée</small>
                 </div>
             </div>
@@ -170,8 +227,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="temps_acquisition" class="param-label">Temps d'acquisition (secondes)</label>
                     <div class="flex items-center">
                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                        <input type="number" class="form-control" id="temps_acquisition" name="temps_acquisition" min="1" value="60" required>
+                        <input type="number" class="form-control <?php echo isset($errors['temps_acquisition']) ? 'is-invalid' : ''; ?>" 
+                            id="temps_acquisition" name="temps_acquisition" min="1" 
+                            value="<?php echo isset($tempsAcquisition) ? $tempsAcquisition : '60'; ?>">
                     </div>
+                    <?php if (isset($errors['temps_acquisition'])): ?>
+                        <div class="invalid-feedback"><?php echo $errors['temps_acquisition']; ?></div>
+                    <?php endif; ?>
                 </div>
             </div>
             
@@ -187,22 +249,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<style>
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #dc3545;
+}
+</style>
+
 <script>
-// Script de validation du formulaire côté client
-document.addEventListener('DOMContentLoaded', () => {
-    const forms = document.querySelectorAll('.needs-validation');
+document.addEventListener('DOMContentLoaded', function() {
+    // Validation en temps réel: enlever les messages d'erreur lorsque les champs sont remplis
+    const inputs = document.querySelectorAll('.form-control, .form-select');
     
-    for (const form of forms) {
-        form.addEventListener('submit', (event) => {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Vérifier si l'input est valide maintenant
+            let isValid = true;
+            
+            if (this.id === 'nom' || this.id === 'adresse' || this.id === 'telephone') {
+                isValid = this.value.trim() !== '';
+            } else if (this.id === 'numero_secu') {
+                isValid = /^\d{15}$/.test(this.value.trim());
+            } else if (this.id === 'groupe_sanguin') {
+                isValid = this.value !== '';
+            } else if (this.id === 'temps_acquisition') {
+                isValid = parseInt(this.value) > 0;
             }
             
-            form.classList.add('was-validated');
+            if (isValid) {
+                // Supprimer la classe d'erreur
+                this.classList.remove('is-invalid');
+                
+                // Trouver et supprimer le message d'erreur
+                const feedbackEl = this.parentNode.querySelector('.invalid-feedback') || 
+                                  this.parentNode.nextElementSibling;
+                if (feedbackEl && feedbackEl.classList.contains('invalid-feedback')) {
+                    feedbackEl.style.display = 'none';
+                }
+            }
         });
-    }
+    });
+    
+    // Redirection si nécessaire (après soumission réussie)
+    <?php if (!empty($redirectToUrl)): ?>
+    window.location.href = "<?php echo $redirectToUrl; ?>";
+    <?php endif; ?>
 });
 </script>
 
-<?php include_once '../../includes/footer.php'; ?> 
+<?php 
+include_once '../../includes/footer.php'; 
+// Vider le tampon de sortie et l'envoyer au navigateur
+ob_end_flush();
+?> 

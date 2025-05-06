@@ -4,79 +4,151 @@ $pageTitle = "Accueil";
 $extraCss = "/css/pages/index.css";
 // La session est déjà démarrée par auth.php
 include_once '../../includes/header.php';
+
+// Récupération des configurations récentes
+require_once '../../config/database.php';
+require_once '../../config/security.php';
+
+try {
+    $sql = "SELECT c.id, c.acquisition_time, c.config_date, 
+                p.id as patient_id, p.name_encoded, p.phone, p.blood_type
+            FROM configurations c
+            JOIN patients p ON c.patient_id = p.id
+            ORDER BY c.config_date DESC
+            LIMIT 5";
+    
+    $configurations = fetchAll($sql);
+} catch (Exception $e) {
+    $configurations = [];
+    $_SESSION['error'] = 'Erreur lors de la récupération des configurations: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur');
+}
 ?>
 
-<div class="welcome-section">
-    <h1 class="welcome-title">
-        <i class="fas fa-heartbeat text-danger"></i> Système de Monitoring ECG
-    </h1>
-    <p class="welcome-subtitle">Plateforme de suivi et d'analyse d'électrocardiogrammes avec Raspberry Pi et capteur AD8232</p>
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron">
+            <h1 class="display-4">Système de Monitoring ECG</h1>
+            <p class="lead">Bienvenue dans l'application de monitoring cardiaque basée sur Raspberry Pi et le capteur AD8232.</p>
+            <hr class="my-4">
+            <p>Ce système permet de configurer, acquérir, visualiser et diagnostiquer des signaux ECG.</p>
+            <div class="mt-4">
+                <a href="/pages/configuration.php" class="btn btn-primary btn-lg">
+                    <i class="fas fa-cog mr-2"></i>Nouvelle configuration
+                </a>
+                <a href="/pages/diagnostic.php" class="btn btn-secondary btn-lg ml-2">
+                    <i class="fas fa-stethoscope mr-2"></i>Diagnostics
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="card feature-card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-cog icon-spacing"></i>Configuration</h3>
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-history mr-2"></i>Configurations récentes</h3>
+            </div>
+            <div class="card-body">
+                <?php if (empty($configurations)): ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune configuration n'a encore été enregistrée.
+                        <div class="mt-2">
+                            <a href="/pages/configuration.php" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i>Créer une configuration
+                            </a>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Groupe sanguin</th>
+                                    <th>Durée</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($configurations as $config): ?>
+                                <tr>
+                                    <td class="text-center"><?php echo $config['id']; ?></td>
+                                    <td class="text-center"><?php echo decodeBase64($config['name_encoded']); ?></td>
+                                    <td class="text-center"><span class="badge bg-primary text-white"><?php echo $config['blood_type']; ?></span></td>
+                                    <td class="text-center"><?php echo $config['acquisition_time']; ?> s</td>
+                                    <td class="text-center"><?php echo formatDate($config['config_date']); ?></td>
+                                    <td class="text-center">
+                                        <a href="/pages/diagnostic.php?config_id=<?php echo $config['id']; ?>" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-stethoscope"></i> Diagnostic
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <a href="/pages/diagnostic.php" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i>Voir tous les diagnostics
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
-        <div class="card-body">
-            <p>Configurez une nouvelle session d'enregistrement ECG avec les informations du patient:</p>
-            <ul class="mb-4">
-                <li>Données personnelles sécurisées et cryptées</li>
-                <li>Configuration de la durée d'acquisition</li>
-                <li>Paramétrage du système</li>
-            </ul>
-            <div class="text-center">
-                <a href="/pages/configuration.php" class="btn btn-primary btn-lg">
-                    <i class="fas fa-sliders-h"></i>Configurer
-                </a>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-heartbeat mr-2"></i>À propos de l'ECG</h3>
+            </div>
+            <div class="card-body">
+                <p>L'électrocardiogramme (ECG) est un examen médical qui enregistre l'activité électrique du cœur.</p>
+                <p>Il permet de détecter diverses anomalies cardiaques comme :</p>
+                <ul>
+                    <li>Les troubles du rythme cardiaque</li>
+                    <li>Les problèmes de conduction électrique</li>
+                    <li>L'hypertrophie des cavités cardiaques</li>
+                    <li>L'ischémie myocardique</li>
+                </ul>
+                <p>Notre système utilise le capteur AD8232 connecté à un Raspberry Pi pour offrir une solution accessible et fiable.</p>
             </div>
         </div>
     </div>
     
-    <div class="card feature-card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-stethoscope icon-spacing"></i>Diagnostic</h3>
-        </div>
-        <div class="card-body">
-            <p>Visualisez et analysez les données ECG enregistrées:</p>
-            <ul class="mb-4">
-                <li>Affichage des signaux ECG avec marquage des ondes P, Q, R, S, T</li>
-                <li>Analyses et diagnostics médicaux</li>
-                <li>Impression des résultats</li>
-            </ul>
-            <div class="text-center">
-                <a href="/pages/diagnostic.php" class="btn btn-success btn-lg">
-                    <i class="fas fa-chart-line"></i>Diagnostiquer
-                </a>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-info-circle mr-2"></i>Comment utiliser</h3>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="mt-5">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-info-circle icon-spacing"></i>À propos du système</h3>
-        </div>
-        <div class="card-body">
-            <p>Ce système a été développé pour capturer, analyser et visualiser les signaux cardiaques à l'aide d'un capteur AD8232 connecté à un Raspberry Pi.</p>
-            
-            <h4 class="mt-4 mb-3">Composants du système</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <ul>
-                        <li><strong>Hardware</strong>: Raspberry Pi 3 B+, Capteur ECG AD8232</li>
-                        <li><strong>Backend</strong>: PHP, MySQL</li>
-                        <li><strong>Frontend</strong>: HTML, CSS, JavaScript, Chart.js</li>
-                    </ul>
-                </div>
-                <div>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle icon-spacing"></i>
-                        <strong>Important:</strong> Ce système n'est pas certifié pour un usage médical professionnel.
-                        Il est destiné à des fins éducatives et expérimentales.
-                    </div>
-                </div>
+            <div class="card-body">
+                <ol>
+                    <li>
+                        <strong>Configuration :</strong> 
+                        <p>Créez une nouvelle configuration en renseignant les informations du patient.</p>
+                    </li>
+                    <li>
+                        <strong>Acquisition :</strong> 
+                        <p>Connectez les électrodes et lancez l'acquisition pendant la durée configurée.</p>
+                    </li>
+                    <li>
+                        <strong>Visualisation :</strong> 
+                        <p>Examinez le tracé ECG avec les outils d'analyse fournis.</p>
+                    </li>
+                    <li>
+                        <strong>Diagnostic :</strong> 
+                        <p>Entrez vos observations et diagnostics pour les sauvegarder dans le système.</p>
+                    </li>
+                </ol>
+                <a href="/pages/configuration.php" class="btn btn-success mt-3">
+                    <i class="fas fa-play me-1"></i>Commencer
+                </a>
             </div>
         </div>
     </div>

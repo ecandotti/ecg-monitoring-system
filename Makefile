@@ -1,131 +1,135 @@
-# Makefile pour l'administration du système de monitoring ECG
-# Auteur: Projet étudiant IR1
+# Makefile for ECG monitoring system administration
+# Author: IR1 Student Project
 
 # Variables
-DOCKER_COMPOSE = docker-compose
+ifeq ($(OS),Windows_NT)
+	DOCKER_COMPOSE = docker-compose
+else
+	DOCKER_COMPOSE = docker compose
+endif
 DOCKER = docker
 ENV_FILE = .env
 ENV_EXAMPLE = .env.example
 
-# Commandes principales
+# Main commands
 .PHONY: up down restart build logs clean setup backup restore shell help
 
-# Aide/documentation
+# Help/documentation
 help:
-	@echo "Makefile pour l'administration du système de monitoring ECG"
+	@echo "Makefile for ECG monitoring system administration"
 	@echo ""
 	@echo "Usage:"
-	@echo "  make <commande>"
+	@echo "  make <command>"
 	@echo ""
-	@echo "Commandes:"
-	@echo "  up              - Démarrer les conteneurs"
-	@echo "  down            - Arrêter les conteneurs"
-	@echo "  restart         - Redémarrer les conteneurs"
-	@echo "  build           - Reconstruire les images Docker"
-	@echo "  logs            - Afficher les logs des conteneurs"
-	@echo "  clean           - Nettoyer complètement le projet (conteneurs, volumes, images)"
-	@echo "  setup           - Configurer l'environnement initial (.env)"
-	@echo "  backup          - Sauvegarder la base de données"
-	@echo "  restore         - Restaurer la base de données depuis une sauvegarde"
-	@echo "  shell-web       - Ouvrir un shell dans le conteneur web"
-	@echo "  shell-db        - Ouvrir un shell dans le conteneur MySQL"
-	@echo "  status          - Afficher l'état des conteneurs"
-	@echo "  prune           - Supprimer les conteneurs et les volumes non utilisés"
-	@echo "  help            - Afficher cette aide"
+	@echo "Commands:"
+	@echo "  up              - Start containers"
+	@echo "  down            - Stop containers" 
+	@echo "  restart         - Restart containers"
+	@echo "  build           - Rebuild Docker images"
+	@echo "  logs            - Display container logs"
+	@echo "  clean           - Clean project completely (containers, volumes, images)"
+	@echo "  setup           - Configure initial environment (.env)"
+	@echo "  backup          - Backup database"
+	@echo "  restore         - Restore database from backup"
+	@echo "  shell-web       - Open shell in web container"
+	@echo "  shell-db        - Open shell in MySQL container"
+	@echo "  status          - Show container status"
+	@echo "  prune           - Remove unused containers and volumes"
+	@echo "  help            - Show this help"
 
-# Démarrer les conteneurs
+# Start containers
 up:
-	@echo "Démarrage des conteneurs..."
+	@echo "Starting containers..."
 	$(DOCKER_COMPOSE) up -d
-	@echo "Conteneurs démarrés."
+	@echo "Containers started."
 	@echo "Web: http://localhost:80"
 	@echo "PHPMyAdmin: http://localhost:8080"
 
-# Arrêter les conteneurs
+# Stop containers
 down:
-	@echo "Arrêt des conteneurs..."
+	@echo "Stopping containers..."
 	$(DOCKER_COMPOSE) down
-	@echo "Conteneurs arrêtés."
+	@echo "Containers stopped."
 
-# Redémarrer les conteneurs
+# Restart containers
 restart:
-	@echo "Redémarrage des conteneurs..."
+	@echo "Restarting containers..."
 	$(DOCKER_COMPOSE) restart
-	@echo "Conteneurs redémarrés."
+	@echo "Containers restarted."
 
-# Reconstruire les images Docker
+# Rebuild Docker images
 build:
-	@echo "Construction des images Docker..."
+	@echo "Building Docker images..."
 	$(DOCKER_COMPOSE) build
-	@echo "Images construites."
+	@echo "Images built."
 
-# Afficher les logs des conteneurs
+# Display container logs
 logs:
 	$(DOCKER_COMPOSE) logs -f
 
-# Nettoyer complètement le projet
+# Clean project completely
 clean:
-	@echo "Nettoyage du projet..."
+	@echo "Cleaning project..."
 	$(DOCKER_COMPOSE) down -v --rmi all
-	@echo "Projet nettoyé."
+	@echo "Project cleaned."
 
-# Configurer l'environnement initial
+# Configure initial environment
 setup:
 	@if [ ! -f $(ENV_FILE) ]; then \
-		echo "Création du fichier $(ENV_FILE) à partir de $(ENV_EXAMPLE)..."; \
+		echo "Creating $(ENV_FILE) from $(ENV_EXAMPLE)..."; \
 		cp $(ENV_EXAMPLE) $(ENV_FILE); \
-		echo "Fichier $(ENV_FILE) créé. Modifiez-le selon vos besoins."; \
+		echo "$(ENV_FILE) created. Modify it as needed."; \
 	else \
-		echo "Le fichier $(ENV_FILE) existe déjà."; \
+		echo "$(ENV_FILE) already exists."; \
 	fi
 
-# Sauvegarder la base de données
+# Backup database
 backup:
-	@echo "Sauvegarde de la base de données..."
+	@echo "Backing up database..."
 	@mkdir -p backups
 	$(DOCKER_COMPOSE) exec mysql mysqldump -u $(shell grep DB_USER $(ENV_FILE) | cut -d= -f2) \
 		-p$(shell grep DB_PASSWORD $(ENV_FILE) | cut -d= -f2) \
 		$(shell grep DB_NAME $(ENV_FILE) | cut -d= -f2) > backups/backup-$$(date +%Y%m%d-%H%M%S).sql
-	@echo "Base de données sauvegardée dans backups/."
+	@echo "Database backed up to backups/."
 
-# Restaurer la base de données depuis une sauvegarde
+# Restore database from backup
 restore:
-	@echo "Restauration de la base de données..."
+	@echo "Restoring database..."
 	@if [ -z "$(file)" ]; then \
-		echo "Erreur: Spécifiez le fichier de sauvegarde avec file=backups/fichier.sql"; \
+		echo "Error: Specify backup file with file=backups/file.sql"; \
 	else \
 		cat $(file) | $(DOCKER_COMPOSE) exec -T mysql mysql -u $(shell grep DB_USER $(ENV_FILE) | cut -d= -f2) \
 			-p$(shell grep DB_PASSWORD $(ENV_FILE) | cut -d= -f2) \
 			$(shell grep DB_NAME $(ENV_FILE) | cut -d= -f2); \
-		echo "Base de données restaurée depuis $(file)."; \
+		echo "Database restored from $(file)."; \
 	fi
 
-# Ouvrir un shell dans le conteneur web
+# Open shell in web container
 shell-web:
-	@echo "Ouverture d'un shell dans le conteneur web..."
+	@echo "Opening shell in web container..."
 	$(DOCKER_COMPOSE) exec web bash
 
-# Ouvrir un shell dans le conteneur MySQL
+# Open shell in MySQL container
 shell-db:
-	@echo "Ouverture d'un shell dans le conteneur MySQL..."
+	@echo "Opening shell in MySQL container..."
 	$(DOCKER_COMPOSE) exec mysql bash
 
-# Afficher l'état des conteneurs
+# Show container status
 status:
-	@echo "État des conteneurs:"
+	@echo "Container status:"
 	$(DOCKER_COMPOSE) ps
 
-# Supprimer les conteneurs et volumes non utilisés
+# Remove unused containers and volumes
 prune:
-	@echo "Suppression des conteneurs et volumes non utilisés..."
+	@echo "Removing unused containers and volumes..."
 	$(DOCKER) system prune -f
 	$(DOCKER) volume prune -f
-	@echo "Nettoyage terminé."
+	@echo "Cleanup complete."
 
-# Installer les dépendances front-end (si nécessaire)
+# Install frontend dependencies (if needed)
 frontend-deps:
-	@echo "Installation des dépendances front-end (à implémenter si nécessaire)..."
-	@echo "Dépendances installées."
+	@echo "Installing frontend dependencies (to be implemented if needed)..."
+	@echo "Dependencies installed."
 
-# Par défaut, afficher l'aide
-default: help 
+# Default to showing help
+default: help

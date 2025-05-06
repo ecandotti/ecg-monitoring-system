@@ -1,7 +1,7 @@
 <?php
 // Page de diagnostic du système de monitoring ECG
 $pageTitle = "Diagnostic";
-$extraCss = "/css/diagnostic.css";
+$extraCss = "/css/pages/diagnostic.css";
 $extraJs = "/js/ecg-visualization.js";
 
 include_once '../../includes/header.php';
@@ -32,7 +32,7 @@ if ($diagnosticId > 0) {
             $configuration = fetchOne($sql, [$diagnostic['configuration_id']]);
         }
     } catch (Exception $e) {
-        $_SESSION['error'] = 'Erreur lors de la récupération du diagnostic: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur');
+        $_SESSION['error'] = 'Erreur lors de la récupération du diagnostic: Contactez l\'administrateur';
     }
 }
 
@@ -46,7 +46,7 @@ try {
     $diagnostics = fetchAll($sql);
 } catch (Exception $e) {
     $diagnostics = [];
-    $_SESSION['error'] = 'Erreur lors de la récupération des diagnostics: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur');
+    $_SESSION['error'] = 'Erreur lors de la récupération des diagnostics: Contactez l\'administrateur';
 }
 
 // Traitement du formulaire de création/modification de diagnostic
