@@ -2,7 +2,7 @@
 /**
  * Gestionnaire des variables d'environnement
  * 
- * Charge les variables d'environnement depuis .env ou depuis Docker
+ * Utilise les variables d'environnement pour configurer le système
  */
 
 // Fonction pour récupérer une variable d'environnement

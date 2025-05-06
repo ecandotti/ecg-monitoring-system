@@ -18,12 +18,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN a2enmod rewrite
 COPY ./web /var/www/html
 
-# Add ServerName directive to suppress FQDN warning
-COPY ./apache-config.conf /etc/apache2/conf-available/servername.conf
-RUN a2enconf servername
-
 # Add custom site configuration with proper permissions
-COPY ./apache-site-config.conf /etc/apache2/sites-available/000-default.conf
+COPY ./apache-config.conf /etc/apache2/sites-available/000-default.conf
 
 # Mise à jour des permissions Apache pour .htaccess
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf

@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
-# ECG Monitoring System
+# ECG Monitoring System Overview
 
 This project implements a complete cardiac monitoring system (ECG) using an AD8232 sensor connected to a Raspberry Pi, with web servers for configuration, acquisition, visualization, and diagnosis.
 
@@ -18,6 +18,3 @@ This project implements a complete cardiac monitoring system (ECG) using an AD82
 - [web/includes/functions.php](mdc:web/includes/functions.php): Common utility functions
 - [web/config/database.php](mdc:web/config/database.php): Database connection functions
 - [web/config/security.php](mdc:web/config/security.php): Security functions for data protection
-
-
-
