@@ -2,7 +2,6 @@
 // Page de diagnostic du système de monitoring ECG
 $pageTitle = "Diagnostic";
 $extraCss = "/css/pages/diagnostic.css";
-$extraJs = "/js/ecg-visualization.js";
 
 include_once '../../includes/header.php';
 
@@ -16,7 +15,7 @@ $configuration = null;
 if ($diagnosticId > 0) {
     try {
         // Récupération des données du diagnostic
-        $sql = "SELECT d.*, c.temps_acquisition, c.patient_id 
+        $sql = "SELECT d.*, c.acquisition_time, c.patient_id 
                 FROM diagnostics d 
                 JOIN configurations c ON d.configuration_id = c.id 
                 WHERE d.id = ?";
@@ -30,19 +29,105 @@ if ($diagnosticId > 0) {
             // Récupération de la configuration
             $sql = "SELECT * FROM configurations WHERE id = ?";
             $configuration = fetchOne($sql, [$diagnostic['configuration_id']]);
+            
+            // Récupération des données ECG
+            $sql = "SELECT * FROM ecg_data WHERE configuration_id = ? ORDER BY timestamp";
+            $ecgRawData = fetchAll($sql, [$diagnostic['configuration_id']]);
+            
+            // Préparation des données ECG pour JavaScript
+            $ecgData = [];
+            $timeData = [];
+            
+            // Si aucune donnée ECG n'est trouvée, on simule des données
+            if (empty($ecgRawData)) {
+                // Pour la démonstration, création de données ECG simulées
+                $sampleCount = 500; // Nombre d'échantillons simulés
+                $frequence = 250; // Hz
+                $duree = $configuration['acquisition_time'];
+                $sampleCount = $frequence * $duree; // Nombre total d'échantillons
+                
+                // Génération d'un signal ECG basique simulé
+                for ($i = 0; $i < $sampleCount; $i++) {
+                    $time = $i / $frequence;
+                    
+                    // Simulation d'un signal ECG basique avec fonction sinus et impulsions
+                    $value = 0.5 * sin(2 * M_PI * 1 * $time); // Composante de base
+                    
+                    // Ajouter des ondes P, QRS et T
+                    if ($i % 250 >= 50 && $i % 250 <= 60) {
+                        // Onde P
+                        $value += 0.25 * sin(2 * M_PI * 10 * ($time - floor($time)));
+                    } else if ($i % 250 >= 100 && $i % 250 <= 110) {
+                        // Complexe QRS (onde Q)
+                        $value -= 0.2;
+                    } else if ($i % 250 >= 110 && $i % 250 <= 115) {
+                        // Complexe QRS (onde R)
+                        $value += 1.0;
+                    } else if ($i % 250 >= 115 && $i % 250 <= 125) {
+                        // Complexe QRS (onde S)
+                        $value -= 0.3;
+                    } else if ($i % 250 >= 150 && $i % 250 <= 180) {
+                        // Onde T
+                        $value += 0.3 * sin(2 * M_PI * 5 * ($time - floor($time)));
+                    }
+                    
+                    // Ajout de bruit aléatoire
+                    $value += (mt_rand(-10, 10) / 100);
+                    
+                    $timeData[] = $time;
+                    $ecgData[] = $value;
+                }
+                
+                // Positions des ondes pour la démonstration
+                $wavePositions = [
+                    'p' => 55,
+                    'q' => 100,
+                    'r' => 112,
+                    's' => 120,
+                    't' => 165
+                ];
+                
+                $isSimulated = true;
+            } else {
+                // Transformation des données réelles
+                foreach ($ecgRawData as $sample) {
+                    $timeData[] = (float)$sample['timestamp'];
+                    $ecgData[] = (float)$sample['value'];
+                }
+                
+                // Détermination des indices approximatifs des ondes
+                $totalSamples = count($ecgData);
+                $wavePositions = [
+                    'p' => (int)($totalSamples * 0.05),
+                    'q' => (int)($totalSamples * 0.1),
+                    'r' => (int)($totalSamples * 0.12),
+                    's' => (int)($totalSamples * 0.15),
+                    't' => (int)($totalSamples * 0.25)
+                ];
+                
+                $isSimulated = false;
+            }
+            
+            // Préparation des valeurs des ondes pour l'affichage
+            $waveValues = [
+                'p' => (float)$diagnostic['p_wave'],
+                'q' => (float)$diagnostic['q_wave'],
+                'r' => (float)$diagnostic['r_wave'],
+                's' => (float)$diagnostic['s_wave'],
+                't' => (float)$diagnostic['t_wave']
+            ];
         }
     } catch (Exception $e) {
-        $_SESSION['error'] = 'Erreur lors de la récupération du diagnostic: Contactez l\'administrateur';
+        $_SESSION['error'] = 'Erreur lors de la récupération du diagnostic: Contactez l\'administrateur !';
     }
 }
-
 // Récupération de tous les diagnostics pour la liste
 try {
-    $sql = "SELECT d.id, d.nom_professeur, d.date_diagnostic, p.nom_encoded, p.groupe_sanguin
+    $sql = "SELECT d.id, d.professor_name, d.diagnosis_date, p.name_encoded, p.blood_type
             FROM diagnostics d
             JOIN configurations c ON d.configuration_id = c.id
             JOIN patients p ON c.patient_id = p.id
-            ORDER BY d.date_diagnostic DESC";
+            ORDER BY d.diagnosis_date DESC";
     $diagnostics = fetchAll($sql);
 } catch (Exception $e) {
     $diagnostics = [];
@@ -70,15 +155,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Préparation des données
             $diagnosticData = [
                 'configuration_id' => $configId,
-                'nom_professeur' => $nomProfesseur,
-                'adresse_consultation' => $adresseConsultation,
-                'compte_rendu' => $compteRendu,
-                'temps_relachement_oreillettes' => $tempsRelachement,
-                'onde_p' => $ondeP,
-                'onde_q' => $ondeQ,
-                'onde_r' => $ondeR,
-                'onde_s' => $ondeS,
-                'onde_t' => $ondeT
+                'professor_name' => $nomProfesseur,
+                'consultation_address' => $adresseConsultation,
+                'report' => $compteRendu,
+                'atrial_release_time' => $tempsRelachement,
+                'p_wave' => $ondeP,
+                'q_wave' => $ondeQ,
+                'r_wave' => $ondeR,
+                's_wave' => $ondeS,
+                't_wave' => $ondeT
             ];
             
             if ($diagnosticId > 0) {
@@ -101,19 +186,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Une erreur est survenue: ' . ($DEBUG ? $e->getMessage() : 'Contactez l\'administrateur');
+            $_SESSION['error'] = 'Une erreur est survenue: Contactez l\'administrateur';
         }
     }
 }
 
 // Récupération des configurations disponibles pour le formulaire de nouveau diagnostic
 try {
-    $sql = "SELECT c.id, c.temps_acquisition, p.nom_encoded, c.date_configuration
+    $sql = "SELECT c.id, c.acquisition_time, p.name_encoded, c.config_date
             FROM configurations c
             JOIN patients p ON c.patient_id = p.id
-            LEFT JOIN diagnostics d ON c.id = d.configuration_id
-            WHERE d.id IS NULL
-            ORDER BY c.date_configuration DESC";
+            ORDER BY c.config_date DESC";
     $configurationsDisponibles = fetchAll($sql);
 } catch (Exception $e) {
     $configurationsDisponibles = [];
@@ -130,11 +213,11 @@ try {
 <?php if ($diagnostic): ?>
 <!-- Affichage d'un diagnostic spécifique -->
 <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title">
+    <div class="card-header d-flex justify-between align-items-center">
+        <h3 class="card-title align-self-center">
             <i class="fas fa-file-medical me-2"></i>
             Diagnostic #<?php echo $diagnostic['id']; ?> - 
-            <?php echo decodeBase64($patient['nom_encoded']); ?>
+            <?php echo decodeBase64($patient['name_encoded']); ?>
         </h3>
         <div>
             <button class="btn btn-outline-primary print-button" onclick="printPage()">
@@ -147,78 +230,74 @@ try {
         <div class="row mb-4">
             <div class="col-md-6">
                 <h4 class="mb-3">Information du patient</h4>
-                <p><strong>Nom:</strong> <?php echo decodeBase64($patient['nom_encoded']); ?></p>
-                <p><strong>Téléphone:</strong> <?php echo $patient['telephone']; ?></p>
-                <p><strong>Adresse:</strong> <?php echo decodeBase64($patient['adresse_encoded']); ?></p>
+                <p><strong>Nom:</strong> <?php echo decodeBase64($patient['name_encoded']); ?></p>
+                <p><strong>Téléphone:</strong> <?php echo $patient['phone']; ?></p>
+                <p><strong>Adresse:</strong> <?php echo decodeBase64($patient['address_encoded']); ?></p>
             </div>
             <div class="col-md-6">
                 <h4 class="mb-3">Détails de l'acquisition</h4>
-                <p><strong>Groupe sanguin:</strong> <span class="badge bg-primary blood-type-badge"><?php echo $patient['groupe_sanguin']; ?></span></p>
-                <p><strong>Temps d'acquisition:</strong> <?php echo $configuration['temps_acquisition']; ?> secondes</p>
-                <p><strong>Date d'acquisition:</strong> <?php echo formatDate($configuration['date_configuration']); ?></p>
+                <p><strong>Groupe sanguin:</strong> <span class="badge bg-primary blood-type-badge"><?php echo $patient['blood_type']; ?></span></p>
+                <p><strong>Temps d'acquisition:</strong> <?php echo $configuration['acquisition_time']; ?> secondes</p>
+                <p><strong>Date d'acquisition:</strong> <?php echo formatDate($configuration['config_date']); ?></p>
             </div>
         </div>
         
         <!-- Visualisation ECG -->
         <div class="ecg-visualization">
             <h3>Électrocardiogramme</h3>
-            <div id="loading-indicator" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Chargement...</span>
-                </div>
-                <p class="mt-2">Chargement des données ECG...</p>
-            </div>
-            <div id="ecg-chart-container" style="display: none;">
-                <canvas id="ecg-chart" class="ecg-chart-container"></canvas>
-                
-                <div class="row mt-4">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Temps de relâchement des oreillettes</h5>
-                            </div>
-                            <div class="card-body">
-                                <h3 id="atrial-release-time" class="text-center">
-                                    <?php echo $diagnostic['temps_relachement_oreillettes'] ? $diagnostic['temps_relachement_oreillettes'] . ' ms' : 'N/A'; ?>
-                                </h3>
+            <?php if (isset($ecgData) && !empty($ecgData)): ?>
+                <div id="ecg-chart-container">
+                    <canvas id="ecg-chart" class="ecg-chart-container"></canvas>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Temps de relâchement des oreillettes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h3 id="atrial-release-time" class="text-center">
+                                        <?php echo $diagnostic['atrial_release_time'] ? number_format($diagnostic['atrial_release_time'], 2) . ' ms' : 'N/A'; ?>
+                                    </h3>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Niveaux des ondes</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="waves-info-container">
-                                    <div class="wave-info-card p-wave">
-                                        <h5>Onde P</h5>
-                                        <div id="p-wave-value" class="value">
-                                            <?php echo $diagnostic['onde_p'] ? number_format($diagnostic['onde_p'], 2) . ' mV' : 'N/A'; ?>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Niveaux des ondes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="waves-info-container">
+                                        <div class="wave-info-card p-wave">
+                                            <h5>Onde P</h5>
+                                            <div id="p-wave-value" class="value">
+                                                <?php echo $diagnostic['p_wave'] ? number_format($diagnostic['p_wave'], 2) . ' mV' : 'N/A'; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="wave-info-card q-wave">
-                                        <h5>Onde Q</h5>
-                                        <div id="q-wave-value" class="value">
-                                            <?php echo $diagnostic['onde_q'] ? number_format($diagnostic['onde_q'], 2) . ' mV' : 'N/A'; ?>
+                                        <div class="wave-info-card q-wave">
+                                            <h5>Onde Q</h5>
+                                            <div id="q-wave-value" class="value">
+                                                <?php echo $diagnostic['q_wave'] ? number_format($diagnostic['q_wave'], 2) . ' mV' : 'N/A'; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="wave-info-card r-wave">
-                                        <h5>Onde R</h5>
-                                        <div id="r-wave-value" class="value">
-                                            <?php echo $diagnostic['onde_r'] ? number_format($diagnostic['onde_r'], 2) . ' mV' : 'N/A'; ?>
+                                        <div class="wave-info-card r-wave">
+                                            <h5>Onde R</h5>
+                                            <div id="r-wave-value" class="value">
+                                                <?php echo $diagnostic['r_wave'] ? number_format($diagnostic['r_wave'], 2) . ' mV' : 'N/A'; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="wave-info-card s-wave">
-                                        <h5>Onde S</h5>
-                                        <div id="s-wave-value" class="value">
-                                            <?php echo $diagnostic['onde_s'] ? number_format($diagnostic['onde_s'], 2) . ' mV' : 'N/A'; ?>
+                                        <div class="wave-info-card s-wave">
+                                            <h5>Onde S</h5>
+                                            <div id="s-wave-value" class="value">
+                                                <?php echo $diagnostic['s_wave'] ? number_format($diagnostic['s_wave'], 2) . ' mV' : 'N/A'; ?>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="wave-info-card t-wave">
-                                        <h5>Onde T</h5>
-                                        <div id="t-wave-value" class="value">
-                                            <?php echo $diagnostic['onde_t'] ? number_format($diagnostic['onde_t'], 2) . ' mV' : 'N/A'; ?>
+                                        <div class="wave-info-card t-wave">
+                                            <h5>Onde T</h5>
+                                            <div id="t-wave-value" class="value">
+                                                <?php echo $diagnostic['t_wave'] ? number_format($diagnostic['t_wave'], 2) . ' mV' : 'N/A'; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -226,7 +305,33 @@ try {
                         </div>
                     </div>
                 </div>
-            </div>
+                
+                <script>
+                // Transmettre directement les données ECG au JavaScript
+                document.addEventListener('DOMContentLoaded', function() {
+                    const ecgData = <?php echo json_encode($ecgData); ?>;
+                    const timeData = <?php echo json_encode($timeData); ?>;
+                    const wavePositions = <?php echo json_encode($wavePositions); ?>;
+                    const waveValues = <?php echo json_encode($waveValues); ?>;
+                    
+                    // Création du graphique
+                    const chart = createAdvancedEcgChart('ecg-chart', ecgData, timeData, wavePositions);
+                    
+                    // Actualiser les valeurs des ondes
+                    updateWaveValues(waveValues);
+                });
+                </script>
+            <?php else: ?>
+                <div id="loading-indicator" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="mt-2">Chargement des données ECG...</p>
+                </div>
+                <div id="ecg-chart-container" style="display: none;">
+                    <!-- Original content -->
+                </div>
+            <?php endif; ?>
         </div>
         
         <!-- Compte rendu médical -->
@@ -234,20 +339,20 @@ try {
             <h4>Compte rendu médical</h4>
             <div class="doctor-info mb-3">
                 <div>
-                    <strong>Professeur:</strong> <?php echo $diagnostic['nom_professeur']; ?>
+                    <strong>Professeur:</strong> <?php echo $diagnostic['professor_name']; ?>
                 </div>
                 <div>
-                    <strong>Date:</strong> <?php echo formatDate($diagnostic['date_diagnostic'], true); ?>
+                    <strong>Date:</strong> <?php echo formatDate($diagnostic['diagnosis_date'], true); ?>
                 </div>
             </div>
             <div>
                 <strong>Adresse de la consultation:</strong>
-                <p><?php echo $diagnostic['adresse_consultation']; ?></p>
+                <p><?php echo $diagnostic['consultation_address']; ?></p>
             </div>
             <div class="mt-3">
                 <strong>Compte rendu:</strong>
                 <div class="p-3 bg-light rounded mt-2">
-                    <?php echo nl2br($diagnostic['compte_rendu']); ?>
+                    <?php echo nl2br($diagnostic['report']); ?>
                 </div>
             </div>
         </div>
@@ -291,14 +396,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             <tbody>
                                 <?php foreach ($diagnostics as $d): ?>
                                 <tr>
-                                    <td><?php echo $d['id']; ?></td>
-                                    <td><?php echo decodeBase64($d['nom_encoded']); ?></td>
-                                    <td><?php echo $d['nom_professeur']; ?></td>
-                                    <td><?php echo formatDate($d['date_diagnostic']); ?></td>
-                                    <td><span class="badge bg-primary"><?php echo $d['groupe_sanguin']; ?></span></td>
-                                    <td>
+                                    <td class="text-center"><?php echo $d['id']; ?></td>
+                                    <td class="text-center"><?php echo decodeBase64($d['name_encoded']); ?></td>
+                                    <td class="text-center"><?php echo $d['professor_name']; ?></td>
+                                    <td class="text-center"><?php echo formatDate($d['diagnosis_date']); ?></td>
+                                    <td class="text-center"><span class="badge bg-primary text-white"><?php echo $d['blood_type']; ?></span></td>
+                                    <td class="text-center">
                                         <a href="?id=<?php echo $d['id']; ?>" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fas fa-eye" style="margin:0px;"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -336,8 +441,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <?php foreach ($configurationsDisponibles as $config): ?>
                                 <option value="<?php echo $config['id']; ?>">
                                     Config #<?php echo $config['id']; ?> - 
-                                    <?php echo decodeBase64($config['nom_encoded']); ?> - 
-                                    <?php echo formatDate($config['date_configuration']); ?>
+                                    <?php echo decodeBase64($config['name_encoded']); ?> - 
+                                    <?php echo formatDate($config['config_date']); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>

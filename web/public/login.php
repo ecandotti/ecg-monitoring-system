@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include_once '../includes/header.php';
 ?>
 
-<div class="row mt-5 justify-content-center">
+<div class="row mt-5 justify-center">
     <div class="col-md-6">
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>

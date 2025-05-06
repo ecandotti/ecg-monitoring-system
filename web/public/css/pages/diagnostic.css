@@ -182,6 +182,10 @@
   font-weight: var(--font-weight-medium);
 }
 
+.align-self-center {
+  align-self: center;
+}
+
 .diagnostic-actions {
   display: flex;
   justify-content: space-between;

@@ -29,16 +29,8 @@ try {
         <div class="jumbotron">
             <h1 class="display-4">Système de Monitoring ECG</h1>
             <p class="lead">Bienvenue dans l'application de monitoring cardiaque basée sur Raspberry Pi et le capteur AD8232.</p>
-            <hr class="my-4">
             <p>Ce système permet de configurer, acquérir, visualiser et diagnostiquer des signaux ECG.</p>
-            <div class="mt-4">
-                <a href="/pages/configuration.php" class="btn btn-primary btn-lg">
-                    <i class="fas fa-cog mr-2"></i>Nouvelle configuration
-                </a>
-                <a href="/pages/diagnostic.php" class="btn btn-secondary btn-lg ml-2">
-                    <i class="fas fa-stethoscope mr-2"></i>Diagnostics
-                </a>
-            </div>
+            <hr class="my-4">
         </div>
     </div>
 </div>

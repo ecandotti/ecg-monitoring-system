@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['patient_id'] = $patientId;
                     
                     // Au lieu d'utiliser header(), nous allons utiliser une variable pour rediriger avec JavaScript
-                    $redirectToUrl = '/pages/diagnostic.php';
+                    $redirectToUrl = '/pages/diagnostic.php?config_id=' . $configId;
                 } else {
                     $formError = 'Erreur lors de l\'enregistrement de la configuration.';
                 }
